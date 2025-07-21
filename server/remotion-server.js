@@ -57,30 +57,28 @@ async function initializeBundle() {
   return bundleLocation;
 }
 
-// Function to remove background from image using remove.bg API
+// Function to remove background from image using PhotoRoom API
 async function removeBackground(imagePath) {
   try {
-    console.log('🖼️ Removing background from image...');
+    console.log('🖼️ Removing background from image using PhotoRoom...');
     
-    const API_KEY = '3bQAaRLQX3ubtdnCmYeHh18Q'; // remove.bg API key from main app
+    const API_KEY = 'sk_pr_default_928d4f9b69a687e3aa884bc3468f9d08310b4f93'; // PhotoRoom API key
     const processedImagePath = imagePath.replace(/(\.[^.]+)$/, '-nobg$1');
     
     // Read the image file
     const imageBuffer = fs.readFileSync(imagePath);
     
-    // Call remove.bg API using form data
+    // Call PhotoRoom API using form data
     const FormData = (await import('form-data')).default;
     const formData = new FormData();
     formData.append('image_file', imageBuffer, {
       filename: 'image.jpg',
       contentType: 'image/jpeg'
     });
-    formData.append('size', 'preview');
-    formData.append('format', 'png');
 
-    const response = await axios.post('https://api.remove.bg/v1.0/removebg', formData, {
+    const response = await axios.post('https://sdk.photoroom.com/v1/segment', formData, {
       headers: {
-        'X-Api-Key': API_KEY,
+        'x-api-key': API_KEY,
         ...formData.getHeaders(),
       },
       responseType: 'arraybuffer',
@@ -90,10 +88,11 @@ async function removeBackground(imagePath) {
     // Save the processed image
     fs.writeFileSync(processedImagePath, response.data);
     
-    console.log('✅ Background removal completed using remove.bg API');
+    console.log('✅ Background removal completed using PhotoRoom API');
     return processedImagePath;
   } catch (error) {
     console.error('❌ Background removal failed:', error.message);
+    console.error('Error details:', error.response?.status, error.response?.statusText);
     
     // Fallback: return original image if API fails
     console.log('🔄 Using original image as fallback');
