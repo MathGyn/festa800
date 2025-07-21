@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "functions": {
+    "api/render-video.js": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}
