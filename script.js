@@ -674,10 +674,15 @@ function initGridDistortion() {
     
     // Resize handler
     const handleResize = () => {
-        const width = container.offsetWidth;
-        const height = container.offsetHeight;
-        const containerAspect = width / height;
+        const width = Math.max(container.offsetWidth, 1);
+        const height = Math.max(container.offsetHeight, 1);
         
+        if (width === 0 || height === 0) {
+            console.warn('Container has zero size, skipping resize');
+            return;
+        }
+        
+        const containerAspect = width / height;
         renderer.setSize(width, height);
         
         const scale = Math.max(containerAspect / imageAspect, 1);

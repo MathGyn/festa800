@@ -742,7 +742,6 @@ body {
 .footer {
     padding: 50px 0;
     background: var(--primary-black);
-    border-top: 1px solid var(--light-gray);
 }
 
 .footer-content {

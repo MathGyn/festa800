@@ -370,7 +370,7 @@ class CardCreatorInterface {
       
       // Configurar botão de download para gerar vídeo
       if (this.elements.downloadBtn) {
-        this.elements.downloadBtn.textContent = '🎬 Gerar Vídeo MP4';
+        this.elements.downloadBtn.textContent = 'Gerar Vídeo MP4';
         this.elements.downloadBtn.onclick = () => this.generateVideoFromPreview(previewContainer, cardElement);
         console.log('✅ Botão configurado');
       }
@@ -439,7 +439,7 @@ class CardCreatorInterface {
       this.showNotification(`Erro ao gerar vídeo: ${error.message}`, 'error');
       
       // Restaurar botão
-      this.elements.downloadBtn.textContent = '🎬 Gerar Vídeo MP4';
+      this.elements.downloadBtn.textContent = 'Gerar Vídeo MP4';
       this.elements.downloadBtn.disabled = false;
     }
   }

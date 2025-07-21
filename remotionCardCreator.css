@@ -199,12 +199,31 @@
   padding: 60px 20px;
 }
 
-.remotion-progress-steps {
+.progress-header {
+  margin-bottom: 50px;
+  padding: 0 20px;
+}
+
+.progress-header p {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #c08229;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.progress-cards-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 30px;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 30px auto 0 auto;
+}
+
+.remotion-progress-steps {
+  /* Container styles moved to progress-cards-container */
 }
 
 .progress-step {
@@ -225,15 +244,60 @@
   transform: scale(1.05);
 }
 
+.progress-step.completed {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
 .step-icon {
-  font-size: 2rem;
-  opacity: 0.5;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.5s ease;
 }
 
-.progress-step.active .step-icon {
+.step-icon.pending {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.step-icon.loading {
   opacity: 1;
-  animation: bounce 1s infinite;
+}
+
+.step-icon.completed {
+  background: rgba(74, 222, 128, 0.2);
+  border: 2px solid #4ade80;
+  border-radius: 50%;
+  opacity: 1;
+}
+
+/* Spinner Animation */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(192, 130, 41, 0.3);
+  border-top: 3px solid #c08229;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.progress-step.active .step-icon.loading {
+  animation: pulse-scale 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .step-text {
@@ -246,6 +310,21 @@
 .progress-step.active .step-text {
   color: #c08229;
   font-weight: 600;
+}
+
+.progress-step.completed .step-text {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.frame-counter {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(192, 130, 41, 0.8);
+  font-weight: 500;
+  margin-top: 5px;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
 }
 
 @keyframes bounce {
@@ -325,7 +404,7 @@
     gap: 40px;
   }
   
-  .remotion-progress-steps {
+  .progress-cards-container {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -340,9 +419,13 @@
     font-size: 2rem;
   }
   
-  .remotion-progress-steps {
+  .progress-cards-container {
     grid-template-columns: 1fr;
     gap: 20px;
+  }
+  
+  .progress-header p {
+    font-size: 1.2rem;
   }
   
   .remotion-result-actions {

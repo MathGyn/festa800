@@ -3,12 +3,13 @@ class RemotionCardCreator {
     this.selectedFile = null;
     this.isProcessing = false;
     this.progressSteps = [
-      { icon: '📷', text: 'Processando foto' },
-      { icon: '✂️', text: 'Removendo fundo' },
-      { icon: '🎨', text: 'Criando card' },
-      { icon: '🎬', text: 'Gravando vídeo' }
+      { icon: 'loading', text: 'Processando foto', completed: false },
+      { icon: 'loading', text: 'Removendo fundo', completed: false },
+      { icon: 'loading', text: 'Criando card', completed: false },
+      { icon: 'loading', text: 'Gravando vídeo', completed: false }
     ];
     this.currentStep = 0;
+    this.renderProgress = { current: 0, total: 300 }; // Frame progress
     
     this.initializeElements();
     this.setupEventListeners();
@@ -171,32 +172,100 @@ class RemotionCardCreator {
   }
 
   animateProgress() {
-    this.progressStepsEl.innerHTML = this.progressSteps.map((step, index) => `
-      <div class="progress-step ${index <= this.currentStep ? 'active' : ''}" data-step="${index}">
-        <div class="step-icon">${step.icon}</div>
-        <div class="step-text">${step.text}</div>
+    this.progressStepsEl.innerHTML = `
+      <div class="progress-header">
+        <p>Aguarde. Seu card de viagem no tempo está sendo processado.</p>
       </div>
-    `).join('');
+      <div class="progress-cards-container">
+        ${this.progressSteps.map((step, index) => {
+          const isActive = index === this.currentStep;
+          const isCompleted = step.completed;
+          const isLastStep = index === this.progressSteps.length - 1;
+          const showFrameCounter = isLastStep && isActive && !isCompleted;
+          
+          const iconHTML = isCompleted 
+            ? '<div class="step-icon completed"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+            : isActive 
+              ? '<div class="step-icon loading"><div class="spinner"></div></div>'
+              : '<div class="step-icon pending"></div>';
+          
+          const stepText = showFrameCounter 
+            ? `${step.text}<br><span class="frame-counter">${this.renderProgress.current}/${this.renderProgress.total}</span>`
+            : step.text;
+          
+          return `
+            <div class="progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" data-step="${index}">
+              ${iconHTML}
+              <div class="step-text">${stepText}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
 
+    // Controle especial para não completar automaticamente o último step (Gravando vídeo)
     if (this.currentStep < this.progressSteps.length - 1) {
       setTimeout(() => {
+        // Mark current step as completed and move to next
+        this.progressSteps[this.currentStep].completed = true;
         this.currentStep++;
         this.animateProgress();
       }, 2000);
     } else {
-      // Final step - keep showing until video is ready
+      // Para o último step (Gravando vídeo), iniciar simulação do progresso de frames
+      this.startFrameProgressSimulation();
     }
   }
 
   showResult(videoUrl) {
-    // Hide progress, show result
-    this.progressSection.style.display = 'none';
-    this.resultSection.style.display = 'block';
+    // Mark final step (Gravando vídeo) as completed
+    this.markFinalStepCompleted();
     
-    // Set video source
-    this.videoPreview.src = videoUrl;
-    this.downloadBtn.href = videoUrl;
-    this.downloadBtn.download = `time-traveler-${this.nameInput.value.toLowerCase().replace(/\s+/g, '-')}.mp4`;
+    // Hide progress after showing completion, show result
+    setTimeout(() => {
+      this.progressSection.style.display = 'none';
+      this.resultSection.style.display = 'block';
+      
+      // Set video source
+      this.videoPreview.src = videoUrl;
+      this.downloadBtn.href = videoUrl;
+      this.downloadBtn.download = `time-traveler-${this.nameInput.value.toLowerCase().replace(/\s+/g, '-')}.mp4`;
+    }, 1500);
+  }
+
+  startFrameProgressSimulation() {
+    // Simular progresso realístico de renderização de frames
+    this.renderProgress.current = 0;
+    this.frameProgressInterval = setInterval(() => {
+      // Increment frames with some realistic variation
+      const increment = Math.floor(Math.random() * 8) + 3; // 3-10 frames per update
+      this.renderProgress.current = Math.min(
+        this.renderProgress.current + increment, 
+        this.renderProgress.total - 1 // Stop at 299, will complete when video is ready
+      );
+      
+      // Update the progress display
+      this.animateProgress();
+      
+      // Stop simulation when we reach near the end (will be completed by showResult)
+      if (this.renderProgress.current >= this.renderProgress.total - 1) {
+        clearInterval(this.frameProgressInterval);
+      }
+    }, 200); // Update every 200ms for smooth progress
+  }
+
+  markFinalStepCompleted() {
+    // Stop frame simulation if still running
+    if (this.frameProgressInterval) {
+      clearInterval(this.frameProgressInterval);
+    }
+    
+    // Set to complete frame count
+    this.renderProgress.current = this.renderProgress.total;
+    
+    // Mark the final step (Gravando vídeo) as completed
+    this.progressSteps[this.progressSteps.length - 1].completed = true;
+    this.animateProgress();
   }
 
   hideProgress() {
@@ -206,6 +275,16 @@ class RemotionCardCreator {
   }
 
   resetForm() {
+    // Clean up frame progress interval
+    if (this.frameProgressInterval) {
+      clearInterval(this.frameProgressInterval);
+    }
+    
+    // Reset progress state
+    this.renderProgress.current = 0;
+    this.currentStep = 0;
+    this.progressSteps.forEach(step => step.completed = false);
+    
     this.removeFile();
     this.nameInput.value = '';
     this.hideProgress();
