@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Creator - Festa 800 | 2025 Time Machine</title>
+    
+    <!-- Fontes necessárias -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS do ProfileCard (necessário para efeitos) -->
+    <link rel="stylesheet" href="ProfileCard.css">
+    
+    <!-- CSS do React Card Creator -->
+    <link rel="stylesheet" href="react-card-creator-build/card-creator.css">
+    
+    <!-- Scripts necessários para funcionalidades -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+    
+    <style>
+        /* Reset básico e background */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        /* Header da página */
+        .page-header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #c08229;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-section h1 {
+            color: #c08229;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            background: linear-gradient(145deg, #c08229, #cebf9f);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(192, 130, 41, 0.3);
+        }
+        
+        /* Container principal */
+        .main-container {
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Footer simples */
+        .page-footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 1px solid #333;
+            margin-top: 60px;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .logo-section h1 {
+                font-size: 1.4rem;
+            }
+            
+            .main-container {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1>🎬 Card Creator - Festa 800</h1>
+            </div>
+            <a href="index.html" class="back-btn">
+                ⬅️ Voltar ao Site
+            </a>
+        </div>
+    </header>
+
+    <!-- Container Principal -->
+    <main class="main-container">
+        <div id="react-card-creator"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+        <p>&copy; 2025 Festa 800 - Time Machine. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Scripts React -->
+    <script type="module" src="react-card-creator-build/card-creator.js"></script>
+</body>
+</html>

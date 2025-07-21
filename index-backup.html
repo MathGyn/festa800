@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Festa 800 | 2025 Time Machine | Bending spacetime 800</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="Masonry.css">
+    <link rel="stylesheet" href="ProfileCard.css">
+    <link rel="stylesheet" href="Hyperspeed.css">
+    <link rel="stylesheet" href="MagicBento.css">
+    <link rel="stylesheet" href="MetaBalls.css">
+    <link rel="stylesheet" href="StarBorder.css">
+    <link rel="stylesheet" href="cardCreatorV2.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="hyperspeed-container" id="hyperspeedContainer"></div>
+        <div class="temporal-loader">
+            <p class="loading-text">Entering temporal distortion...</p>
+        </div>
+    </div>
+
+    <!-- Particles Container -->
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <video class="hero-video" autoplay muted loop>
+            <source src="background-video.mp4" type="video/mp4">
+            <source src="background-video.webm" type="video/webm">
+        </video>
+        <div class="video-overlay"></div>
+        
+        <div class="hero-content">
+            <div class="logo-container">
+                <img src="logo.svg" alt="Festa 800" class="event-logo">
+            </div>
+            <div class="temporal-badge">TEMPORAL SHIFT: ACTIVE</div>
+            <h1 class="hero-title">
+                <span class="subtitle"><span id="animated-year">0</span> Time Machine</span>
+                <span class="tagline">Bending Spacetime</span>
+            </h1>
+        </div>
+    </section>
+
+    <!-- História Section -->
+    <section id="historia" class="historia">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title true-focus-title">
+                    <span class="focus-word">Uma</span>
+                    <span class="focus-word">Década</span>
+                    <span class="focus-word">Dobrando</span>
+                    <span class="focus-word">o</span>
+                    <span class="focus-word">Tempo</span>
+                </h2>
+            </div>
+            <div class="historia-content">
+                <p>A Festa 800 é uma das principais festas eletrônicas de Goiânia, destacando-se pelo formato open bar e line‑up com DJs de renome. Em 2024, comemorando sua 10ª edição, o evento foi realizado em dois dias — 13 e 14 de setembro — consolidando-se como um dos mais aguardados da cena local.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Foto Destaque Section -->
+    <section id="foto-destaque" class="foto-destaque">
+        <div class="fullscreen-image">
+            <div id="gridDistortionContainer" class="grid-distortion-container"></div>
+        </div>
+    </section>
+
+    <!-- Galeria Section -->
+    <section id="galeria" class="galeria">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Fragmentos Temporais</h2>
+                <div class="time-line"></div>
+            </div>
+            <div id="masonry-container" class="masonry-container"></div>
+        </div>
+    </section>
+
+    <!-- Line-up Section -->
+    <section id="lineup" class="lineup">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Time Travelers</h2>
+                <div class="time-line"></div>
+            </div>
+            <div id="profile-cards-container" class="profile-cards-container"></div>
+        </div>
+    </section>
+
+    <!-- Info Section -->
+    <section id="info" class="info">
+        <div id="shapeBlurContainer" class="shape-blur-container"></div>
+        <div class="container">
+            <div class="info-new-layout">
+                <div class="info-side">
+                    <p>Local. A ser divulgado.</p>
+                </div>
+                <div class="info-center">
+                    <div class="date-main">27.SET</div>
+                    <div class="date-year">2025</div>
+                </div>
+                <div class="info-side">
+                    <p>A partir das 23h.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Bar Section -->
+    <section id="openbar" class="openbar">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Open Bar Premium</h2>
+                <div class="time-line"></div>
+            </div>
+            <div class="openbar-content">
+                <div id="magicBentoContainer" class="magic-bento-container"></div>
+                <p class="openbar-info">Modalidades de ingresso e informações detalhadas serão divulgadas em breve.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comunidade Section -->
+    <section id="comunidade" class="comunidade">
+        <div id="metaBallsContainer" class="metaballs-container"></div>
+        <div class="container">
+            <div class="comunidade-content">
+                <div class="comunidade-left">
+                    <h2 class="comunidade-title">Comunidade 800<br>no WhatsApp</h2>
+                </div>
+                <div class="comunidade-center">
+                    <div class="whatsapp-icon">
+                        <svg width="100" height="100" viewBox="0 0 427.65 432.27" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M216.95,0C100.59,0,6.26,94.33,6.26,210.7c0,57.75,30.58,109.37,30.58,109.37L0,432.27l115.45-36.89s42.86,26.02,101.51,26.02c116.37,0,210.7-94.33,210.7-210.7S333.32,0,216.95,0ZM216.95,387.68c-54.17,0-97.54-29.28-97.54-29.28l-66.55,21.71,21.59-64.43s-34.49-47.75-34.49-104.99c0-97.75,79.24-176.98,176.98-176.98s176.99,79.24,176.99,176.98-79.24,176.98-176.99,176.98Z" fill="#c08229"/>
+                            <path d="M136.72,118.97s5.69-3.61,8.66-3.61h16.6s4.45.78,6.5,5.41c2.04,4.64,16.04,37.52,17.08,40.06s3.76,8.81-.6,14.43c-4.36,5.62-13.47,16.12-13.47,16.12,0,0-3.61,3.25-.48,8.42,3.13,5.17,14.12,22.23,28.51,35.12,14.38,12.89,32,22.37,40.78,25.26,8.78,2.89,10.71-.96,14.07-5.29,3.37-4.33,13.83-17.56,13.83-17.56,0,0,3.61-5.29,10.71-2.04,7.1,3.25,41.62,19.97,41.62,19.97,0,0,4.21.72,4.45,5.41.24,4.69,3.13,18.73-9.38,32.23-12.51,13.51-39.12,19.76-51.72,16.23-12.6-3.52-54.25-14.42-81.42-39.75s-49.17-52-58.17-71.67c-9-19.67-8.5-31.33-8-36.83s3.39-30.99,20.45-41.91Z" fill="#c08229"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="comunidade-right">
+                    <p class="comunidade-description">Um canal exclusivo no WhatsApp com todas as informações que você precisa, sem perder nada</p>
+                </div>
+            </div>
+            <div class="comunidade-button-container">
+                <a href="#" id="comunidadeBtn" class="comunidade-btn">
+                    Participar da Comunidade 800
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Card Creator V2 Section -->
+    <section id="card-creator" class="card-creator-v2">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Crie Seu Card Festa 800</h2>
+                <div class="time-line"></div>
+                <p class="section-subtitle">Envie sua foto, remova o fundo e crie um card idêntico aos dos artistas com MP4 animado</p>
+            </div>
+            
+            <div class="creator-layout">
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <div class="upload-icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14.2929 5.29289C14.6834 4.90237 15.3166 4.90237 15.7071 5.29289L20.7071 10.2929C21.0976 10.6834 21.0976 11.3166 20.7071 11.7071C20.3166 12.0976 19.6834 12.0976 19.2929 11.7071L16 8.41421V15C16 15.5523 15.5523 16 15 16C14.4477 16 14 15.5523 14 15V8.41421L10.7071 11.7071C10.3166 12.0976 9.68342 12.0976 9.29289 11.7071C8.90237 11.3166 8.90237 10.6834 9.29289 10.2929L14.2929 5.29289Z" fill="currentColor"/>
+                                    <path d="M3 15C3.55228 15 4 15.4477 4 16V17C4 17.5523 4.44772 18 5 18H19C19.5523 18 20 17.5523 20 17V16C20 15.4477 20.4477 15 21 15C21.5523 15 22 15.4477 22 16V17C22 18.6569 20.6569 20 19 20H5C3.34315 20 2 18.6569 2 17V16C2 15.4477 2.44772 15 3 15Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <h3>Envie sua foto</h3>
+                            <p>Arraste e solte ou <span class="upload-link">clique para selecionar</span></p>
+                            <small>JPG, PNG • Até 10MB • Recomendado: foto do rosto/busto</small>
+                        </div>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*" hidden>
+                </div>
+
+                <!-- Form Section -->
+                <div class="form-section">
+                    <div class="input-field">
+                        <label for="userNameInput">Seu Nome</label>
+                        <input type="text" id="userNameInput" placeholder="Digite seu nome aqui..." maxlength="25">
+                        <span class="char-counter">0/25</span>
+                    </div>
+
+                    <div class="checkbox-field">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="removeBgCheck" checked>
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-text">Remover fundo automaticamente</span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button type="button" id="generateBtn" class="generate-button" disabled>
+                            <span class="btn-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" fill="currentColor"/>
+                                </svg>
+                                Gerar Card + MP4
+                            </span>
+                            <span class="btn-loading" hidden>
+                                <div class="spinner-ring"></div>
+                                <span class="loading-text">Processando...</span>
+                            </span>
+                        </button>
+                        
+                        <a href="card-creator.html" class="new-version-btn" style="
+                            background: linear-gradient(145deg, #2ed573, #5fda6d);
+                            color: white;
+                            border: none;
+                            padding: 15px 25px;
+                            border-radius: 12px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            font-family: 'Orbitron', sans-serif;
+                            text-decoration: none;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            transition: transform 0.3s ease;
+                            font-size: 1rem;
+                        " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                            🚀 Nova Versão (Melhorada)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection" hidden>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-steps">
+                    <div class="step" data-step="1">
+                        <div class="step-icon">📷</div>
+                        <div class="step-text">Processando foto</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-icon">✂️</div>
+                        <div class="step-text">Removendo fundo</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-icon">🎨</div>
+                        <div class="step-text">Criando card</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-icon">🎬</div>
+                        <div class="step-text">Gravando MP4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection" hidden>
+                <div class="result-header">
+                    <h3>🎉 Seu card está pronto!</h3>
+                    <p>MP4 em formato Stories/Reels (1080x1920) com todos os efeitos dos artistas</p>
+                </div>
+                
+                <div class="video-preview">
+                    <video id="previewVideo" autoplay muted loop controls></video>
+                </div>
+
+                <div class="download-actions">
+                    <button type="button" id="downloadBtn" class="download-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 16L7 11L8.4 9.55L11 12.15V4H13V12.15L15.6 9.55L17 11L12 16ZM6 20C5.45 20 4.979 19.804 4.587 19.412C4.195 19.02 3.99934 18.5493 4 18V15H6V18H18V15H20V18C20 18.55 19.804 19.021 19.412 19.413C19.02 19.805 18.5493 20.0007 18 20H6Z" fill="currentColor"/>
+                        </svg>
+                        Baixar MP4
+                    </button>
+                    <button type="button" id="createNewBtn" class="create-new-button">
+                        Criar Novo Card
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="100" height="53" viewBox="0 0 352.8 185.8" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <path class="st0" d="M109.6,68c5.4-1.1,5.3-4.5,5.3-6v-3.2h0V8.9c0-1.6-1.9-7-7.3-8.1-5.4-1-13-.8-21.1-.8H29.6c-8.1,0-16.6-.3-22,.8C2.1,1.9,1.2,8.1,1.2,9.7v52.5c0,1.6-.1,5,5.3,6.1-5.4,1.1-5.3,2.9-5.3,4.4v52.7c0,1.6.2,7.7,5.7,8.7,5.4,1.1,14.4,1.1,22.6.9h57c8.1,0,18.2.4,23.7-.6,5.4-1.1,4.8-5,4.7-7.9v-45.7h0v-8.4c0-1.6.1-3.4-5.3-4.4M4.4,9l98.4.6v53.4s-87.7,0-87.7,0l-.2-46.5s-.4-6.6-10.5-7.6M102.8,125.4H14.7c0,0,.2-41.8.2-41.8,0,0,1.2-11.1-8.9-12.1h96.8s0,53.8,0,53.8h0Z" fill="#c08229"/>
+                            <path class="st0" d="M349.9,126.6v-1.3h0c0-.4,0-.7,0-1.1V11c0-3.1-1.9-7.3-7.4-9.4-5.4-2.1-13-1.6-21.1-1.6h-56.8c-8.1,0-16.6-.5-22,1.6-5.4,2.1-6.4,6.3-6.4,9.4v102h0v12.5c0,1.6.2,7.7,5.7,8.7,4.2.8,10.5,1,16.9,1,2,0,3.9,0,5.8,0h56.8c2.8,0,5.8,0,8.8,0,5.7,0,11.3,0,14.9-.7,5.4-1.1,4.8-5,4.7-7.9M337.8,10.3v101.7h0v12.9l-84.6-.4-.3-98.3s1.9-15.6-11.3-15.9h96.2Z" fill="#c08229"/>
+                            <path class="st0" d="M232.1,126.6v-1.3h0c0-.4,0-.7,0-1.1V11c0-3.1-1.9-7.3-7.4-9.4C219.3-.5,211.7,0,203.6,0h-56.8c-8.1,0-16.6-.5-22,1.6-5.4,2.1-6.4,6.3-6.4,9.4v102h0v12.5c0,1.6.2,7.7,5.7,8.7,4.2.8,10.5,1,16.9,1,2,0,3.9,0,5.8,0h56.8c2.8,0,5.8,0,8.8,0,5.7,0,11.3,0,14.9-.7,5.4-1.1,4.8-5,4.7-7.9M220,10.3v101.7h0v12.9l-84.6-.4-.3-98.3s1.9-15.6-11.3-15.9h96.2Z" fill="#c08229"/>
+                            <path class="st0" d="M19,146.1c2.4,0,4.7.5,6.9,1.5s4.1,2.4,5.8,4.1c1.7,1.8,3,3.8,4,6.2,1,2.4,1.5,5,1.5,7.8s-.5,5.5-1.5,8c-1,2.4-2.3,4.6-4,6.4-1.7,1.8-3.7,3.2-5.9,4.2s-4.7,1.5-7.2,1.5-5-.5-7.3-1.5-4.2-2.4-5.9-4.1c-1.7-1.8-3-3.9-3.9-6.3-1-2.4-1.4-5.1-1.4-8.1s.5-5.3,1.4-7.7c1-2.4,2.3-4.5,4-6.2s3.7-3.2,6-4.2c2.3-1,4.8-1.6,7.6-1.6M18.4,148.1c-1.9,0-3.6.4-5.1,1.2-1.5.8-2.8,2-3.8,3.5-1,1.5-1.8,3.4-2.3,5.5s-.8,4.6-.8,7.3.3,5.1.8,7.3c.5,2.2,1.3,4.1,2.3,5.7s2.3,2.8,3.8,3.7,3.2,1.3,5.2,1.3,3.4-.3,4.9-1c1.5-.7,2.8-1.7,3.9-3.1,1.1-1.4,2-3.2,2.6-5.4.6-2.2.9-4.8.9-7.8s-.3-5.4-.8-7.7c-.5-2.3-1.3-4.2-2.3-5.8-1-1.6-2.3-2.8-3.9-3.6-1.5-.8-3.3-1.2-5.4-1.2" fill="#c08229"/>
+                            <path class="st0" d="M57.1,183.9v1h-16.3v-1h1.3c.7,0,1.3,0,1.8-.1.5-.1.9-.3,1.3-.7.3-.4.6-.9.8-1.7s.3-1.8.3-3.1v-24.5c0-.9,0-1.6,0-2.1,0-.6-.1-1-.2-1.4s-.2-.6-.4-.9c-.2-.2-.5-.4-.8-.6-.8-.4-1.7-.7-2.6-.7h-1.3v-1.1h16.3v1.1h-1.3c-.7,0-1.3,0-1.8.2s-.9.4-1.3.7c-.3.4-.6.9-.8,1.7-.2.8-.3,1.8-.3,3.1v24.5c0,.9,0,1.6,0,2.2,0,.6,0,1,.2,1.4s.3.6.5.9.5.4.8.6c.8.4,1.6.7,2.5.7h1.3Z" fill="#c08229"/>
+                            <path class="st0" d="M91.7,146.9v8.9h-.6c-.3-2.4-1-4.1-2.1-5.1s-2.7-1.5-4.9-1.5h-5.3v29.1c0,1.3,0,2.3.3,3s.4,1.3.8,1.6c.3.4.8.6,1.2.7s1.1.1,1.8.1h1.3v1h-16.1v-1h1.3c.7,0,1.2,0,1.8-.2s.9-.4,1.2-.7c.3-.4.6-.9.8-1.6s.3-1.7.3-3v-29.1h-4.6c-1.1,0-2.2,0-3,.3-.9.2-1.6.5-2.3,1-.6.5-1.2,1.2-1.5,2-.4.9-.6,1.9-.7,3.3h-1v-8.9h31.5Z" fill="#c08229"/>
+                            <path class="st0" d="M113.5,146.1c2.4,0,4.7.5,6.9,1.5,2.2,1,4.1,2.4,5.8,4.1,1.7,1.8,3,3.8,4,6.2,1,2.4,1.5,5,1.5,7.8s-.5,5.5-1.5,8c-1,2.4-2.3,4.6-4,6.4-1.7,1.8-3.7,3.2-5.9,4.2s-4.7,1.5-7.2,1.5-5-.5-7.3-1.5c-2.3-1-4.2-2.4-5.9-4.1-1.7-1.8-3-3.9-3.9-6.3s-1.4-5.1-1.4-8.1.5-5.3,1.4-7.7c1-2.4,2.3-4.5,4-6.2s3.7-3.2,6-4.2c2.3-1,4.8-1.6,7.6-1.6M112.9,148.1c-1.9,0-3.6.4-5.1,1.2-1.5.8-2.8,2-3.8,3.5-1,1.5-1.8,3.4-2.3,5.5s-.8,4.6-.8,7.3.3,5.1.8,7.3c.5,2.2,1.3,4.1,2.3,5.7,1,1.6,2.3,2.8,3.8,3.7s3.2,1.3,5.2,1.3,3.4-.3,4.9-1c1.5-.7,2.8-1.7,3.9-3.1,1.1-1.4,2-3.2,2.6-5.4.6-2.2.9-4.8.9-7.8s-.3-5.4-.8-7.7c-.5-2.3-1.3-4.2-2.3-5.8-1-1.6-2.3-2.8-3.9-3.6-1.6-.8-3.3-1.2-5.4-1.2" fill="#c08229"/>
+                            <path class="st0" d="M168.4,146.1l.9,12.9h-.9c-1.2-3.9-2.8-6.7-4.9-8.4-2.1-1.7-4.7-2.6-7.7-2.6s-3.8.4-5.4,1.1-3.1,1.9-4.2,3.4c-1.2,1.5-2.1,3.4-2.8,5.8-.7,2.3-1,5-1,8.2s.3,4.8.9,6.9c.6,2.1,1.6,3.8,2.8,5.3,1.2,1.5,2.7,2.6,4.4,3.4,1.8.8,3.8,1.2,6.1,1.2s4.6-.5,6.5-1.6c1.9-1,3.9-3.1,6.2-6.3l.9.5c-1.9,3.4-4.1,5.8-6.7,7.4-2.5,1.6-5.5,2.4-9.1,2.4s-5.2-.5-7.4-1.4c-2.3-.9-4.2-2.3-5.8-4s-2.9-3.8-3.8-6.1c-.9-2.4-1.4-4.9-1.4-7.8s.9-7.3,2.6-10.4c1.7-3.2,4-5.6,7-7.4,3-1.8,6.3-2.6,9.8-2.6s5.5.7,8.1,2c.8.4,1.3.6,1.7.6.6,0,1.1-.2,1.5-.8.4-.5.7-1.1.9-1.9h1,0Z" fill="#c08229"/>
+                            <path class="st0" d="M184.1,149v15h8.3c1.2,0,2.2-.1,3-.3.8-.2,1.3-.6,1.8-1,.4-.4.7-1,.9-1.7.2-.7.3-1.5.3-2.5h1v13.2h-1c-.1-1.1-.3-2-.5-2.7-.2-.7-.5-1.3-.9-1.7s-1-.7-1.7-.9c-.7-.2-1.7-.3-2.9-.3h-8.3v12.5c0,.9,0,1.7,0,2.3s.1,1,.3,1.3c.2.3.5.5.9.6s1,.1,1.8.1h6.4c1.1,0,2,0,2.8,0,.8,0,1.4-.2,1.9-.3.5-.2,1-.4,1.4-.7.4-.3.9-.7,1.3-1.1,1.1-1.1,2.3-2.8,3.6-5.2h1.1l-3.3,9.5h-29.2v-1h1.3c.4,0,.7,0,1.1-.1.4,0,.8-.2,1.1-.4.4-.1.7-.4.9-.6s.5-.5.6-.9c.2-.6.3-1.8.3-3.7v-24.7c0-2.4-.2-3.9-.7-4.5-.7-.8-1.8-1.1-3.4-1.1h-1.3v-1h29.2v8.3h-.7c-.3-1.4-.6-2.5-.9-3.3-.3-.8-.7-1.5-1.3-1.9-.5-.4-1.2-.7-2-.9-.8-.1-1.9-.2-3.2-.2h-10.4,0Z" fill="#c08229"/>
+                            <path class="st0" d="M206.4,146.9h10.3l23.2,28.5v-21.9c0-1.3,0-2.3-.3-3.1-.2-.8-.4-1.3-.8-1.7s-.8-.6-1.3-.7-1.1-.1-1.7-.1h-1.3v-1h13.2v1h-1.4c-.7,0-1.2,0-1.8.2-.5.1-.9.4-1.2.8s-.6.9-.8,1.7c-.2.7-.2,1.7-.2,3v32h-1l-25-30.6v23.4c0,1.3,0,2.3.3,3.1.2.7.4,1.3.8,1.6s.8.6,1.2.7,1.1.1,1.7.1h1.3v1h-13.2v-1h1.3c.7,0,1.2,0,1.8-.2.5-.1.9-.4,1.3-.7.4-.4.6-.9.8-1.6.2-.7.2-1.7.2-3v-26.4c-.6-.7-1-1.2-1.4-1.6-.4-.4-.7-.7-1.1-1-.3-.2-.7-.5-1.1-.6s-.9-.4-1.5-.5c-.6-.2-1.4-.2-2.5-.2v-1h0Z" fill="#c08229"/>
+                            <path class="st0" d="M281.8,146.9v8.9h-.6c-.3-2.4-1-4.1-2.1-5.1-1.1-1-2.7-1.5-4.9-1.5h-5.4v29.1c0,1.3,0,2.3.3,3s.4,1.3.8,1.6.8.6,1.2.7,1.1.1,1.8.1h1.3v1h-16.1v-1h1.3c.7,0,1.2,0,1.8-.2s.9-.4,1.2-.7c.3-.4.6-.9.8-1.6s.3-1.7.3-3v-29.1h-4.6c-1.1,0-2.1,0-3,.3-.9.2-1.6.5-2.3,1-.6.5-1.1,1.2-1.5,2-.4.9-.6,1.9-.7,3.3h-1v-8.9h31.5Z" fill="#c08229"/>
+                            <path class="st0" d="M303.5,146.1c2.4,0,4.7.5,6.9,1.5s4.1,2.4,5.8,4.1c1.7,1.8,3,3.8,4,6.2,1,2.4,1.5,5,1.5,7.8s-.5,5.5-1.5,8c-1,2.4-2.3,4.6-4,6.4-1.7,1.8-3.7,3.2-5.9,4.2s-4.7,1.5-7.2,1.5-5-.5-7.3-1.5c-2.3-1-4.2-2.4-5.9-4.1-1.7-1.8-3-3.9-3.9-6.3s-1.4-5.1-1.4-8.1.5-5.3,1.4-7.7c1-2.4,2.3-4.5,4-6.2s3.7-3.2,6-4.2c2.3-1,4.8-1.6,7.6-1.6M303,148.1c-1.9,0-3.6.4-5.1,1.2-1.5.8-2.8,2-3.8,3.5-1,1.5-1.8,3.4-2.3,5.5s-.8,4.6-.8,7.3.3,5.1.8,7.3c.5,2.2,1.3,4.1,2.3,5.7,1,1.6,2.3,2.8,3.8,3.7s3.2,1.3,5.2,1.3,3.4-.3,4.9-1,2.8-1.7,3.9-3.1c1.1-1.4,2-3.2,2.6-5.4.6-2.2.9-4.8.9-7.8s-.3-5.4-.8-7.7c-.5-2.3-1.3-4.2-2.3-5.8-1-1.6-2.3-2.8-3.9-3.6-1.5-.8-3.3-1.2-5.4-1.2" fill="#c08229"/>
+                            <path class="st0" d="M350.3,146.1v13.1h-1c-.5-3.5-1.6-6.2-3.5-8.1s-4.2-2.8-7-2.8-1.9.2-2.7.5c-.8.3-1.5.8-2.1,1.3-.6.5-1.1,1.2-1.4,1.9-.3.7-.5,1.4-.5,2.2s.1,1.4.4,2,1.1,1.6,2.6,2.9c2.4,1.5,4.6,2.8,6.5,3.8,1.8,1,4.2,2.4,7.2,4.4,1.3,1,2.3,2.2,3,3.6s1,2.8,1,4.3-.3,2.8-.9,4.1-1.4,2.4-2.5,3.4c-1,1-2.3,1.7-3.8,2.3-1.5.6-3.1.9-4.9.9s-2.1,0-3.1-.2c-.2,0-.6-.1-1.3-.4-.7-.2-1.5-.4-2.3-.6-.8-.2-1.6-.4-2.3-.6-.7-.2-1.1-.3-1.2-.3-.5,0-.8.1-1.1.4s-.5.9-.6,1.8h-1v-13h1c.5,2.7,1.2,4.7,2,6.1.4.7.9,1.3,1.6,1.9.6.6,1.4,1.1,2.2,1.5.8.4,1.7.8,2.6,1,1,.2,1.9.4,2.9.4s2.2-.2,3.1-.5,1.7-.8,2.4-1.4,1.2-1.2,1.5-2c.4-.8.5-1.6.5-2.4s-.3-1.9-.8-2.8c-.5-.9-1.4-1.9-2.6-2.8-1.2-.7-2.6-1.6-4.3-2.6-3.1-1.8-6-3.6-8.4-5.2-1.4-1.1-2.4-2.3-3.1-3.6s-1.1-2.7-1.1-4.3.3-2.6.8-3.8c.6-1.2,1.3-2.3,2.3-3.2,1-.9,2.2-1.6,3.5-2.2s2.8-.8,4.4-.8,4.1.5,6.4,1.5c.5.2,1,.4,1.3.5.4.1.6.2.9.2.5,0,.9-.1,1.2-.4s.5-.9.7-1.8h1.1Z" fill="#c08229"/>
+                        </g>
+                    </svg>
+                </div>
+                <p>© 2025 Festa 800. Todos os direitos reservados. Created by <a href="https://www.behance.net/MatheusSouza" target="_blank" class="creator-link">Matheus Souza</a>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="hyperspeed.js"></script>
+    <script src="masonry.js"></script>
+    <script src="profileCard.js"></script>
+    <script type="module" src="shapeBlur.js"></script>
+    <script type="module" src="MagicBento.js"></script>
+    <script type="module" src="MetaBalls.js"></script>
+    <script type="module" src="StarBorder.js"></script>
+    <script src="backgroundRemover.js"></script>
+    <script src="canvasCardRenderer.js"></script>
+    <script src="canvasVideoGenerator.js"></script>
+    <script src="userCardComponent.js"></script>
+    <script src="videoRecorder.js"></script>
+    <script src="cardCreatorInterface.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

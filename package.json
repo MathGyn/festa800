@@ -1,0 +1,36 @@
+{
+  "name": "festa800",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "script.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "remotion:server": "node server/remotion-server.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run remotion:server\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Projeto do site da Festa 800 com o componente MagicBento integrado para uma experiência interativa e futurística.",
+  "devDependencies": {
+    "vite": "^7.0.4"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.324",
+    "@remotion/cli": "^4.0.324",
+    "@remotion/renderer": "^4.0.324",
+    "axios": "^1.10.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "form-data": "^4.0.4",
+    "gsap": "^3.13.0",
+    "multer": "^2.0.2",
+    "ogl": "^1.0.11",
+    "postprocessing": "^6.37.6",
+    "remotion": "^4.0.324",
+    "three": "^0.178.0",
+    "concurrently": "^9.1.0"
+  }
+}

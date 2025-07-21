@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+*/dist/
+output/
+*/output/
+
+# Uploads
+uploads/
+*/uploads/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+._*
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+
+# Card creator folder (development only)
+card-creator/
+
+# Claude files
+.claude/
+
+# Duplicate files
+remotion/
+src/ProfileCardVideo.tsx
+src/Root.tsx
