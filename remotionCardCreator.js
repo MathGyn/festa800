@@ -134,13 +134,8 @@ class RemotionCardCreator {
       formData.append('userImage', this.selectedFile);
       formData.append('userName', this.nameInput.value.trim());
 
-      // Determine API URL based on environment
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? 'http://localhost:3001/api/render-video'
-        : 'https://festa800-remotion-server-production.up.railway.app/api/render-video';
-
       // Send request to Remotion server
-      const response = await fetch(apiUrl, {
+      const response = await fetch('http://localhost:3001/api/render-video', {
         method: 'POST',
         body: formData
       });
