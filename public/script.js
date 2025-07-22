@@ -1,8 +1,8 @@
 // MasonryGallery e ProfileCardGallery são carregados via window globals
-import ShapeBlur from './shapeBlur.js';
-import MagicBento from './MagicBento.js';
-import MetaBalls from './MetaBalls.js';
-import StarBorder from './StarBorder.js';
+// import ShapeBlur from ./shapeBlur.js;
+// import MagicBento from ./MagicBento.js;
+// import MetaBalls from ./MetaBalls.js;
+// import StarBorder from ./StarBorder.js;
 
 document.addEventListener('DOMContentLoaded', function() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize MagicBento effect
     initMagicBento();
     
-    // Initialize MetaBalls effect
-    initMetaBalls();
+    // Initialize Threads effect
+    initThreads();
     
     // Initialize StarBorder effect
     initStarBorder();
@@ -57,21 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function initMetaBalls() {
+    function initThreads() {
         const container = document.getElementById('metaBallsContainer');
         if (container) {
-            const metaBalls = new MetaBalls(container, {
-                color: "#cebf9f",
-                cursorBallColor: "#e6d5b7",
-                cursorBallSize: 4,
-                ballCount: 12,
-                animationSize: 25,
-                enableMouseInteraction: true,
-                enableTransparency: true,
-                hoverSmoothness: 0.02,
-                clumpFactor: 0.8,
-                speed: 0.2
+            const threads = new Threads(container, {
+                color: [0.753, 0.749, 0.624], // #cebf9f convertido para RGB 0-1
+                amplitude: 0.8, // Mais sutil como background
+                distance: 0.05, // Linhas mais próximas
+                enableMouseInteraction: true
             });
+            console.log('✅ Threads effect inicializado com sucesso');
         }
     }
     
@@ -374,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function addTemporalEffects() {
         const timeCoordinates = document.querySelector('.time-coordinates span');
         if (!timeCoordinates) {
-            console.log('Time coordinates element not found - skipping temporal effects');
+            // Elemento não existe no HTML atual - não é um erro
             return;
         }
         
@@ -395,10 +390,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addDynamicBackground() {
         const hero = document.querySelector('.hero');
-        const overlay = document.querySelector('.time-overlay');
+        const overlay = document.querySelector('.video-overlay');
         
         if (!hero || !overlay) {
-            console.log('Hero or overlay not found - skipping dynamic background');
+            // Elementos não existem ou têm nomes diferentes - não é um erro
             return;
         }
         
@@ -416,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTypingEffect() {
         const heroSubtitle = document.querySelector('.hero-subtitle');
         if (!heroSubtitle) {
-            console.log('Hero subtitle element not found - skipping typing effect');
+            // Elemento não existe no HTML atual - não é um erro
             return;
         }
         
@@ -573,7 +568,7 @@ function initGridDistortion() {
         mouse: 0.1,
         strength: 0.15,
         relaxation: 0.9,
-        imageSrc: 'GREG-320.png'
+        imageSrc: 'public/GREG-320.png'
     };
     
     // Three.js setup
@@ -786,97 +781,97 @@ function initMasonryGallery() {
     const items = [
         {
             id: "1",
-            img: "foto1.jpg",
+            img: "public/foto1.jpg",
             url: "#",
             height: 400,
         },
         {
             id: "2",
-            img: "foto2.jpg",
+            img: "public/foto2.jpg",
             url: "#",
             height: 300,
         },
         {
             id: "3",
-            img: "foto3.jpg",
+            img: "public/foto3.jpg",
             url: "#",
             height: 500,
         },
         {
             id: "4",
-            img: "foto4.jpg",
+            img: "public/foto4.jpg",
             url: "#",
             height: 350,
         },
         {
             id: "5",
-            img: "foto5.jpg",
+            img: "public/foto5.jpg",
             url: "#",
             height: 450,
         },
         {
             id: "6",
-            img: "foto6.jpg",
+            img: "public/foto6.jpg",
             url: "#",
             height: 320,
         },
         {
             id: "7",
-            img: "foto7.jpg",
+            img: "public/foto7.jpg",
             url: "#",
             height: 480,
         },
         {
             id: "8",
-            img: "foto8.jpg",
+            img: "public/foto8.jpg",
             url: "#",
             height: 380,
         },
         {
             id: "9",
-            img: "foto9.jpg",
+            img: "public/foto9.jpg",
             url: "#",
             height: 420,
         },
         {
             id: "10",
-            img: "foto10.jpg",
+            img: "public/foto10.jpg",
             url: "#",
             height: 360,
         },
         {
             id: "11",
-            img: "foto11.jpg",
+            img: "public/foto11.jpg",
             url: "#",
             height: 490,
         },
         {
             id: "12",
-            img: "foto12.jpg",
+            img: "public/foto12.jpg",
             url: "#",
             height: 330,
         },
         {
             id: "13",
-            img: "foto13.jpg",
+            img: "public/foto13.jpg",
             url: "#",
             height: 460,
         },
         {
             id: "14",
-            img: "foto14.jpg",
+            img: "public/foto14.jpg",
             url: "#",
             height: 340,
         },
         {
             id: "15",
-            img: "foto15.jpg",
+            img: "public/foto15.jpg",
             url: "#",
             height: 510,
         },
         {
             id: "16",
-            img: "foto16.jpg",
+            img: "public/foto16.jpg",
             url: "#",
             height: 390,
         }
@@ -918,7 +913,7 @@ function initProfileCards() {
         {
             name: "RUFUS DU SOL",
             role: "Electronic / House",
-            image: "artista1.png",
+            image: "public/artista1.png",
             handle: "rufusdusol",
             status: "Headliner",
             contactText: "Listen",
@@ -927,7 +922,7 @@ function initProfileCards() {
         {
             name: "ANYMA",
             role: "Techno / Visual",
-            image: "artista3.png",
+            image: "public/artista3.png",
             handle: "anyma",
             status: "Headliner",
             contactText: "Listen",
@@ -936,7 +931,7 @@ function initProfileCards() {
         {
             name: "ARTBAT",
             role: "Melodic Techno",
-            image: "artista2.png",
+            image: "public/artista2.png",
             handle: "artbat",
             status: "Headliner",
             contactText: "Listen",
@@ -945,7 +940,7 @@ function initProfileCards() {
         {
             name: "AMELIE LENS",
             role: "Techno",
-            image: "artista4.png",
+            image: "public/artista4.png",
             handle: "amelielens",
             status: "Special",
             contactText: "Listen",
@@ -954,7 +949,7 @@ function initProfileCards() {
         {
             name: "WHOMADEWHO",
             role: "Electronic / Indie",
-            image: "artista5.png",
+            image: "public/artista5.png",
             handle: "whomadewho",
             status: "Special",
             contactText: "Listen",

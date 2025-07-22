@@ -1,4 +1,5 @@
-import { Renderer, Program, Mesh, Triangle, Transform, Vec3, Camera } from "ogl";
+// OGL não está disponível via CDN - comentando
+// import { Renderer, Program, Mesh, Triangle, Transform, Vec3, Camera } from "ogl";
 
 function parseHexColor(hex) {
   const c = hex.replace("#", "");

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Video Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .remotion-result-section {
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            background: #f0fdf4;
+        }
+        
+        .remotion-video-preview {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 2px solid #333;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #4ade80;
+            color: white;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #22c55e;
+        }
+        
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug: Video Display Test</h1>
+    
+    <div class="debug-section">
+        <h2>Test 1: Fake Video Blob</h2>
+        <p>Testing video element with a fake blob URL</p>
+        <button onclick="testFakeVideo()">Test Fake Video</button>
+        <div id="test1-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Test 2: Result Section Display</h2>
+        <p>Testing the actual result section visibility</p>
+        <button onclick="testResultSection()">Show Result Section</button>
+        <button onclick="hideResultSection()">Hide Result Section</button>
+        
+        <div class="remotion-result-section" id="remotion-result-section" style="display: none;">
+            <video id="remotion-video-preview" class="remotion-video-preview" controls muted loop>
+                Seu navegador não suporta vídeos HTML5.
+            </video>
+            <div>
+                <button>Baixar Vídeo MP4</button>
+                <button>Criar Novo Card</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Test 3: Server Connection</h2>
+        <p>Testing connection to Remotion server</p>
+        <button onclick="testServerConnection()">Test Server</button>
+        <div id="server-result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Console Logs</h2>
+        <div id="logs" class="log">Logs will appear here...</div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const logsDiv = document.getElementById('logs');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addLog(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            logsDiv.textContent += `[${timestamp}] ${type}: ${message}\n`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addLog('LOG', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addLog('ERROR', ...args);
+        };
+        
+        // Test functions
+        function testFakeVideo() {
+            console.log('🧪 Testing fake video blob...');
+            
+            // Create a simple test video blob (empty but valid)
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw a simple test pattern
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(0, 0, 640, 480);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('TEST VIDEO', 320, 240);
+            
+            // Convert to blob and create URL
+            canvas.toBlob((blob) => {
+                console.log('📦 Created test blob:', blob);
+                const testUrl = URL.createObjectURL(blob);
+                console.log('🔗 Test URL:', testUrl);
+                
+                // Try to display it
+                const resultDiv = document.getElementById('test1-result');
+                resultDiv.innerHTML = `
+                    <video width="320" height="240" controls style="border: 2px solid #333;">
+                        <source src="${testUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>Test URL: ${testUrl}</p>
+                `;
+            }, 'video/mp4');
+        }
+        
+        function testResultSection() {
+            console.log('👁️ Showing result section...');
+            const resultSection = document.getElementById('remotion-result-section');
+            const videoPreview = document.getElementById('remotion-video-preview');
+            
+            resultSection.style.display = 'block';
+            
+            console.log('📊 Result section computed style:', window.getComputedStyle(resultSection).display);
+            console.log('📊 Video preview computed style:', window.getComputedStyle(videoPreview).display);
+            console.log('📊 Video preview dimensions:', {
+                width: videoPreview.offsetWidth,
+                height: videoPreview.offsetHeight,
+                clientWidth: videoPreview.clientWidth,
+                clientHeight: videoPreview.clientHeight
+            });
+        }
+        
+        function hideResultSection() {
+            console.log('🫥 Hiding result section...');
+            document.getElementById('remotion-result-section').style.display = 'none';
+        }
+        
+        async function testServerConnection() {
+            console.log('🔌 Testing server connection...');
+            const resultDiv = document.getElementById('server-result');
+            
+            try {
+                resultDiv.innerHTML = '<p>Testing connection...</p>';
+                
+                // Test health endpoint first
+                const healthResponse = await fetch('http://localhost:3001/api/health');
+                console.log('🏥 Health check response:', healthResponse.status);
+                
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.text();
+                    console.log('🏥 Health data:', healthData);
+                    resultDiv.innerHTML = `
+                        <p style="color: green;">✅ Server is running!</p>
+                        <p>Health response: ${healthData}</p>
+                    `;
+                } else {
+                    throw new Error(`Health check failed: ${healthResponse.status}`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Server connection failed:', error);
+                resultDiv.innerHTML = `
+                    <p style="color: red;">❌ Server connection failed</p>
+                    <p>Error: ${error.message}</p>
+                    <p>Make sure the Remotion server is running on port 3001</p>
+                `;
+            }
+        }
+        
+        // Initialize logs
+        console.log('🚀 Debug page loaded');
+        console.log('🌐 Current URL:', window.location.href);
+        console.log('🖥️ User agent:', navigator.userAgent);
+    </script>
+</body>
+</html>

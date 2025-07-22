@@ -14,6 +14,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 3001;
 
+// 🔥 MAPA DE CONEXÕES DE PROGRESSO REAL
+const progressConnections = new Map();
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -38,6 +41,38 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/output', express.static(path.join(__dirname, '../output')));
 app.use('/card-details.png', express.static(path.join(__dirname, './card-details.png')));
 app.use('/bg-card.jpg', express.static(path.join(__dirname, './bg-card.jpg')));
+
+// 🔥 ENDPOINT DE PROGRESSO REAL - Server-Sent Events
+app.get('/api/render-progress/:sessionId', (req, res) => {
+  const sessionId = req.params.sessionId;
+  console.log(`🎯 CONECTANDO PROGRESSO REAL: ${sessionId}`);
+  
+  // Configurar SSE headers
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+  
+  // Confirmar conexão
+  res.write('data: {"type":"connected","message":"Progresso REAL conectado"}\n\n');
+  
+  // Armazenar conexão para uso posterior
+  progressConnections.set(sessionId, res);
+  
+  // Limpar quando desconectar
+  req.on('close', () => {
+    console.log(`🔌 Desconectado: ${sessionId}`);
+    progressConnections.delete(sessionId);
+  });
+  
+  req.on('error', () => {
+    console.log(`❌ Erro na conexão: ${sessionId}`);
+    progressConnections.delete(sessionId);
+  });
+});
 
 // Global bundleLocation cache
 let bundleLocation = null;
@@ -103,8 +138,24 @@ async function removeBackground(imagePath) {
 // Route to render video
 app.post('/api/render-video', upload.single('userImage'), async (req, res) => {
   try {
-    const { userName } = req.body;
+    const { userName, sessionId } = req.body;
     const userImageFile = req.file;
+    
+    console.log(`🎬 RENDERIZAÇÃO INICIADA: ${userName}, Session: ${sessionId}`);
+    
+    // Função para enviar progresso REAL
+    const sendRealProgress = (data) => {
+      if (sessionId && progressConnections.has(sessionId)) {
+        const connection = progressConnections.get(sessionId);
+        try {
+          connection.write(`data: ${JSON.stringify(data)}\n\n`);
+          console.log(`🔥 PROGRESSO REAL ENVIADO: ${data.renderedFrames}/${data.totalFrames}`);
+        } catch (error) {
+          console.error('❌ Erro ao enviar progresso REAL:', error);
+          progressConnections.delete(sessionId);
+        }
+      }
+    };
 
     if (!userName || !userImageFile) {
       return res.status(400).json({ error: 'Missing userName or userImage' });
@@ -156,9 +207,27 @@ app.post('/api/render-video', upload.single('userImage'), async (req, res) => {
       onProgress: ({ renderedFrames, totalFrames }) => {
         if (totalFrames && totalFrames > 0) {
           const progress = Math.round((renderedFrames / totalFrames) * 100);
-          console.log(`🎬 Rendering progress: ${progress}%`);
+          console.log(`🎬 PROGRESSO REAL: ${renderedFrames}/${totalFrames} (${progress}%)`);
+          
+          // 🔥 ENVIAR PROGRESSO REAL PARA FRONTEND
+          sendRealProgress({
+            type: 'progress',
+            renderedFrames,
+            totalFrames,
+            progress,
+            message: `Renderizando ${renderedFrames}/${totalFrames} frames`
+          });
         } else {
-          console.log(`🎬 Rendering frame: ${renderedFrames}`);
+          console.log(`🎬 FRAME: ${renderedFrames}`);
+          
+          // 🔥 ENVIAR FRAME INDIVIDUAL
+          sendRealProgress({
+            type: 'frame',
+            renderedFrames,
+            totalFrames: 300, // Padrão
+            progress: Math.round((renderedFrames / 300) * 100),
+            message: `Frame ${renderedFrames}/300`
+          });
         }
       },
     });

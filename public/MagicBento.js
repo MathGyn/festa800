@@ -1,4 +1,4 @@
-import { gsap } from "gsap";
+// Usando GSAP via CDN (global gsap)
 
 const DEFAULT_PARTICLE_COUNT = 12;
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
@@ -11,48 +11,48 @@ const cardData = [
     title: "Gin",
     description: "Premium gin brands",
     label: "Spirits",
-    backgroundImage: "gin.jpg",
-    bottleImage: "gin.png"
+    backgroundImage: "public/gin.jpg",
+    bottleImage: "public/gin.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Vodka",
     description: "Vodka importada premium",
     label: "Importada",
-    backgroundImage: "vodka.jpg",
-    bottleImage: "vodka.png"
+    backgroundImage: "public/vodka.jpg",
+    bottleImage: "public/vodka.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Whisky",
     description: "Selection of fine whiskies",
     label: "Premium",
-    backgroundImage: "whisky.jpg",
-    bottleImage: "whisky.png"
+    backgroundImage: "public/whisky.jpg",
+    bottleImage: "public/whisky.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Espumante",
     description: "Champagne and sparkling wines",
     label: "Celebração",
-    backgroundImage: "espumante.jpg",
-    bottleImage: "espumante.png"
+    backgroundImage: "public/espumante.jpg",
+    bottleImage: "public/espumante.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Energéticos",
     description: "Red Bull and energy drinks",
     label: "Energia",
-    backgroundImage: "energeticos.jpg",
-    bottleImage: "energeticos.png"
+    backgroundImage: "public/energeticos.jpg",
+    bottleImage: "public/energeticos.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Cerveja",
     description: "Cervejas artesanais e importadas",
     label: "Cerveja",
-    backgroundImage: "cerveja.jpg",
-    bottleImage: "cerveja.png"
+    backgroundImage: "public/cerveja.jpg",
+    bottleImage: "public/cerveja.png"
   },
 ];
 
@@ -671,3 +671,6 @@ class MagicBento {
 }
 
 export default MagicBento;
+
+// Tornar disponível globalmente
+window.MagicBento = MagicBento;

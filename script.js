@@ -1,8 +1,9 @@
 // MasonryGallery e ProfileCardGallery são carregados via window globals
-import ShapeBlur from './shapeBlur.js';
-import MagicBento from './MagicBento.js';
-import MetaBalls from './MetaBalls.js';
-import StarBorder from './StarBorder.js';
+// Comentando imports ES6 problemáticos - usando classes globais
+// import ShapeBlur from './shapeBlur.js';
+// import MagicBento from './MagicBento.js';
+// import MetaBalls from './MetaBalls.js';
+// import StarBorder from './StarBorder.js';
 
 document.addEventListener('DOMContentLoaded', function() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -10,19 +11,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const scrollIndicator = document.querySelector('.scroll-indicator');
     
     // Initialize Hyperspeed effect
-    initHyperspeed();
+    // initHyperspeed(); // Comentado - classe não disponível
     
     // Initialize ShapeBlur effect
-    initShapeBlur();
+    // initShapeBlur(); // Comentado - classe não disponível
     
     // Initialize MagicBento effect
-    initMagicBento();
+    // initMagicBento(); // Comentado - classe não disponível
     
     // Initialize MetaBalls effect
-    initMetaBalls();
+    // initMetaBalls(); // Comentado - classe não disponível
     
     // Initialize StarBorder effect
-    initStarBorder();
+    // initStarBorder(); // Comentado - classe não disponível
     
     function initShapeBlur() {
         const container = document.getElementById('shapeBlurContainer');

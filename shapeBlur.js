@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+// Usando Three.js via CDN (global THREE)
 
 const vertexShader = /* glsl */ `
 varying vec2 v_texcoord;

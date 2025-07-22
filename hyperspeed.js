@@ -1,6 +1,7 @@
 // Hyperspeed component converted to vanilla JS from ReactBits
-import * as THREE from 'three';
-import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from 'postprocessing';
+// Usando Three.js via CDN (global THREE)
+// Postprocessing não está disponível via CDN - comentando
+// import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from 'postprocessing';
 
 class Hyperspeed {
   constructor(container, effectOptions = {}) {
