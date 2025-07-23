@@ -269,41 +269,55 @@ class CardCreatorInterface {
       const userName = this.elements.userNameInput.value.trim();
       const shouldRemoveBg = this.elements.removeBgCheck?.checked !== false;
 
-      // Mostrar seção de progresso e interceptar logs
+      // Mostrar seção de progresso e iniciar renderização no servidor
       this.showProgressSection();
       this.updateFrameCounter(0, 300);
-      this.setupRenderingLogInterceptor();
       
-      // Processar foto e remover fundo
-      if (shouldRemoveBg) {
-        this.processedImage = await this.backgroundRemover.removeBackground(
-          this.selectedFile,
-          (progress, message) => {
-            console.log(`Background removal progress: ${progress}`);
-          }
-        );
-      } else {
-        this.processedImage = this.selectedFile;
-      }
+      // Gerar session ID para acompanhar progresso real
+      const sessionId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+      console.log(`🎯 SESSION ID GERADO: ${sessionId}`);
+      
+      // Conectar ao progresso real do servidor
+      this.connectToRealProgress(sessionId);
+      
+      // Preparar form data para o servidor
+      const formData = new FormData();
+      formData.append('userImage', this.selectedFile);
+      formData.append('userName', userName);
+      formData.append('sessionId', sessionId);
 
-      // Criar ProfileCard
-      const imageUrl = URL.createObjectURL(this.processedImage);
-      this.userCard = new ProfileCard({
-        avatarUrl: imageUrl,
-        miniAvatarUrl: imageUrl,
-        name: userName,
-        title: "Time Traveler",
-        handle: userName.toLowerCase().replace(/\s+/g, ''),
-        status: "Festa 800",
-        contactText: "Download",
-        showUserInfo: true,
-        enableTilt: true,
-        showBehindGradient: true,
-        onContactClick: null
+      // Enviar requisição para servidor Remotion
+      console.log('📡 Enviando requisição para servidor Remotion...');
+      
+      const response = await fetch('http://localhost:3001/api/render-video', {
+        method: 'POST',
+        body: formData
       });
 
-      // Mostrar preview do card criado
-      this.showCardPreview();
+      console.log('📡 Resposta recebida, status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Erro do servidor:', errorText);
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
+
+      // Obter video blob do servidor
+      console.log('📦 Obtendo blob do vídeo...');
+      const videoBlob = await response.blob();
+      console.log('📦 Blob recebido:', {
+        size: `${(videoBlob.size / 1024 / 1024).toFixed(2)}MB`,
+        type: videoBlob.type
+      });
+      
+      if (videoBlob.size === 0) {
+        throw new Error('Vídeo recebido está vazio');
+      }
+      
+      this.generatedVideo = videoBlob;
+      
+      // Mostrar resultado final
+      this.showServerVideoResult();
       
       this.showNotification('Card criado com sucesso! 🎉', 'success');
 
@@ -311,100 +325,13 @@ class CardCreatorInterface {
       console.error('Erro ao gerar card:', error);
       this.showNotification(`Erro: ${error.message}`, 'error');
       this.hideProgressSection();
-      this.restoreConsoleLog();
+      this.closeProgressConnection();
     } finally {
       this.isGenerating = false;
     }
   }
 
-  /**
-   * Mostra preview do card criado
-   */
-  showCardPreview() {
-    console.log('🎬 Iniciando showCardPreview...', { userCard: this.userCard });
-    
-    if (!this.userCard) {
-      console.error('Card não foi criado');
-      return;
-    }
-
-    try {
-      // Limpar qualquer preview anterior
-      const existingContainer = document.getElementById('cardPreviewContainer');
-      if (existingContainer) {
-        existingContainer.remove();
-        console.log('🧹 Preview anterior removido');
-      }
-      // Criar elemento do card
-      console.log('📱 Criando elemento do ProfileCard...');
-      const cardElement = this.userCard.createElement();
-      console.log('✅ Card element criado:', cardElement);
-      
-      // Mostrar seção de resultado
-      console.log('📺 Mostrando seção de resultado...');
-      if (this.elements.resultSection) {
-        this.elements.resultSection.hidden = false;
-        console.log('✅ Seção de resultado mostrada');
-      }
-      
-      // Ocultar seção de progresso
-      this.hideProgressSection();
-      
-      // Criar container de preview em formato Stories
-      console.log('📦 Criando preview container...');
-      const previewContainer = this.createPreviewContainer();
-      console.log('✅ Preview container criado:', previewContainer);
-      
-      // Inserir card no preview
-      console.log('🎯 Inserindo card no preview...');
-      previewContainer.appendChild(cardElement);
-      console.log('✅ Card inserido no preview');
-      
-      // Adicionar ao DOM
-      console.log('🌐 Adicionando ao DOM...', { 
-        previewVideo: this.elements.previewVideo,
-        parent: this.elements.previewVideo?.parentNode,
-        resultSection: this.elements.resultSection
-      });
-      
-      if (this.elements.previewVideo && this.elements.previewVideo.parentNode) {
-        this.elements.previewVideo.parentNode.replaceChild(previewContainer, this.elements.previewVideo);
-        console.log('✅ Preview container adicionado ao DOM via replaceChild');
-      } else if (this.elements.resultSection) {
-        // Fallback: limpar result section e adicionar preview container
-        const existingVideo = this.elements.resultSection.querySelector('#remotion-video-preview');
-        if (existingVideo) {
-          existingVideo.remove();
-        }
-        // Adicionar preview container como primeiro filho
-        this.elements.resultSection.insertBefore(previewContainer, this.elements.resultSection.firstChild);
-        console.log('✅ Preview container adicionado ao DOM via fallback');
-      } else {
-        console.error('❌ Nem previewVideo nem resultSection encontrados');
-      }
-      
-      // Configurar botão de download para gerar vídeo
-      if (this.elements.downloadBtn) {
-        this.elements.downloadBtn.textContent = 'Gerar Vídeo MP4';
-        this.elements.downloadBtn.onclick = () => this.generateVideoFromPreview(previewContainer, cardElement);
-        console.log('✅ Botão configurado');
-      }
-      
-      // Scroll para resultado
-      setTimeout(() => {
-        if (this.elements.resultSection) {
-          this.elements.resultSection.scrollIntoView({ behavior: 'smooth' });
-          console.log('✅ Scroll realizado');
-        }
-      }, 100);
-      
-      console.log('🎉 Preview mostrado com sucesso!');
-      
-    } catch (error) {
-      console.error('❌ Erro ao mostrar preview:', error);
-      this.showNotification(`Erro ao mostrar preview: ${error.message}`, 'error');
-    }
-  }
+  // Função removida - agora renderiza diretamente no servidor sem preview local
   
   createPreviewContainer() {
     const container = document.createElement('div');
@@ -428,153 +355,9 @@ class CardCreatorInterface {
     return container;
   }
   
-  async generateVideoFromPreview(previewContainer, cardElement) {
-    try {
-      // Desabilitar botão e mostrar estado inicial
-      this.elements.downloadBtn.disabled = true;
-      this.elements.downloadBtn.textContent = '🎬 Preparando...';
-      
-      console.log('🎬 Iniciando geração de vídeo do preview...');
-      
-      // Gerar vídeo a partir do preview (mantém contagem de frames)
-      this.generatedVideo = await this.generateVideoFromCard(cardElement);
-      
-      // Aguardar um pouco para user ver o status "Gravando vídeo"
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mostrar vídeo gerado (substitui preview pelo vídeo final)
-      this.showGeneratedVideo();
-      
-      // Restaurar console.log original
-      this.restoreConsoleLog();
-      
-      // Atualizar botão apenas após vídeo ser mostrado
-      this.elements.downloadBtn.textContent = '⬇️ Baixar MP4';
-      this.elements.downloadBtn.onclick = () => this.downloadVideo();
-      this.elements.downloadBtn.disabled = false;
-      
-      this.showNotification('Vídeo gerado com sucesso! 🎉', 'success');
-      
-    } catch (error) {
-      console.error('Erro ao gerar vídeo:', error);
-      this.showNotification(`Erro ao gerar vídeo: ${error.message}`, 'error');
-      
-      // Restaurar botão
-      this.elements.downloadBtn.textContent = 'Gerar Vídeo MP4';
-      this.elements.downloadBtn.disabled = false;
-    }
-  }
+  // Função removida - agora usa renderização do servidor
   
-  async generateVideoFromCard(cardElement) {
-    console.log('🎨 Gerando vídeo Canvas2D do card...');
-    
-    // Configurações do vídeo
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1920;
-    const ctx = canvas.getContext('2d');
-    
-    const fps = 30;
-    const duration = 10; // 10 segundos para 300 frames
-    const totalFrames = 300; // Fixo em 300 frames
-    
-    // Configurar MediaRecorder
-    const stream = canvas.captureStream(fps);
-    const recorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm; codecs=vp9',
-      videoBitsPerSecond: 8000000
-    });
-    
-    const chunks = [];
-    
-    return new Promise((resolve, reject) => {
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-      
-      recorder.onstop = () => {
-        // Manter contagem até preview ser mostrado
-        this.elements.downloadBtn.textContent = '🎬 Finalizando...';
-        
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        console.log('✅ Vídeo renderizado com sucesso:', {
-          size: `${(blob.size / 1024 / 1024).toFixed(2)}MB`,
-          frames: totalFrames,
-          duration: `${duration}s`
-        });
-        resolve(blob);
-      };
-      
-      recorder.onerror = reject;
-      
-      // Iniciar gravação
-      recorder.start();
-      
-      let currentFrame = 0;
-      
-      const renderFrame = async () => {
-        if (currentFrame >= totalFrames) {
-          // Só para gravação quando atingir 300 frames
-          this.elements.downloadBtn.textContent = '📹 Gravando vídeo...';
-          setTimeout(() => recorder.stop(), 100);
-          return;
-        }
-        
-        const progress = currentFrame / totalFrames;
-        
-        // Log padronizado que será capturado pelo interceptor
-        this.elements.downloadBtn.textContent = currentFrame + 1 === totalFrames ? 
-          '📹 Gravando vídeo...' : `🎬 Renderizando...`;
-        console.log(`📸 Renderizando frame ${currentFrame + 1}/${totalFrames} (${Math.round(progress * 100)}%)`);
-        
-        // Simular movimento do mouse no card
-        const time = progress * Math.PI * 2;
-        const mouseX = 50 + 30 * Math.sin(time * 1.2);
-        const mouseY = 50 + 30 * Math.cos(time * 0.8);
-        
-        // Disparar eventos de mouse no card
-        const rect = cardElement.getBoundingClientRect();
-        const event = new MouseEvent('mousemove', {
-          clientX: rect.left + (rect.width * mouseX / 100),
-          clientY: rect.top + (rect.height * mouseY / 100),
-          bubbles: true
-        });
-        cardElement.dispatchEvent(event);
-        
-        // Aguardar renderização
-        await new Promise(resolve => setTimeout(resolve, 16));
-        
-        // Capturar frame usando html2canvas
-        try {
-          const frameCanvas = await html2canvas(cardElement.closest('#cardPreviewContainer'), {
-            backgroundColor: '#1a1a1a',
-            scale: 2,
-            width: 1080,
-            height: 1920,
-            logging: false,
-            useCORS: true
-          });
-          
-          // Desenhar no canvas principal
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(frameCanvas, 0, 0, canvas.width, canvas.height);
-          
-          currentFrame++;
-          
-          // Aguardar próximo frame
-          setTimeout(renderFrame, 1000 / fps);
-          
-        } catch (error) {
-          console.error(`Erro ao capturar frame ${currentFrame + 1}/${totalFrames}:`, error);
-          currentFrame++;
-          setTimeout(renderFrame, 1000 / fps);
-        }
-      };
-      
-      // Iniciar renderização
-      setTimeout(renderFrame, 100);
-    });
-  }
+  // Função removida - agora usa renderização do servidor Remotion
   
   showGeneratedVideo() {
     if (!this.generatedVideo) {
@@ -740,64 +523,96 @@ class CardCreatorInterface {
   }
 
   /**
-   * Intercepta logs de renderização para atualizar contador de frames
+   * Conecta ao progresso real do servidor Remotion
    */
-  setupRenderingLogInterceptor() {
-    // Salvar referência original do console.log
-    this.originalConsoleLog = console.log;
+  connectToRealProgress(sessionId) {
+    console.log(`🔥 CONECTANDO AO PROGRESSO REAL: ${sessionId}`);
+    const progressUrl = `http://localhost:3001/api/render-progress/${sessionId}`;
     
-    // Interceptar console.log para capturar frames de renderização
-    console.log = (...args) => {
-      // Chamar console.log original
-      this.originalConsoleLog.apply(console, args);
+    try {
+      this.eventSource = new EventSource(progressUrl);
       
-      // Verificar se é um log de renderização de frame
-      const logString = args.join(' ');
+      this.eventSource.onopen = () => {
+        console.log('✅ CONEXÃO DE PROGRESSO REAL ESTABELECIDA');
+      };
       
-      // Padrões de log de renderização que queremos capturar
-      const framePatterns = [
-        /📸 Renderizando frame (\d+)\/(\d+)/,
-        /Frame (\d+)\/(\d+)/,
-        /Renderizando (\d+)\/(\d+)/,
-        /🎬 Frames (\d+)\/(\d+)/
-      ];
-      
-      framePatterns.forEach(pattern => {
-        const match = logString.match(pattern);
-        if (match) {
-          const current = parseInt(match[1]);
-          const total = parseInt(match[2]);
-          this.updateFrameCounter(current, total);
+      this.eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log(`🔥 PROGRESSO REAL RECEBIDO:`, data);
+          
+          if (data.type === 'connected') {
+            console.log('📡 Conectado ao servidor de progresso');
+          } else if (data.type === 'progress' || data.type === 'frame') {
+            // Atualizar contador de frames com dados reais do servidor
+            const current = data.renderedFrames || 0;
+            const total = data.totalFrames || 300;
+            this.updateFrameCounter(current, total);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao processar progresso:', error);
         }
-      });
-    };
-  }
-
-  /**
-   * Restaura console.log original
-   */
-  restoreConsoleLog() {
-    if (this.originalConsoleLog) {
-      console.log = this.originalConsoleLog;
-      this.originalConsoleLog = null;
+      };
+      
+      this.eventSource.onerror = (error) => {
+        console.error('❌ Erro na conexão de progresso:', error);
+        this.eventSource.close();
+      };
+    } catch (error) {
+      console.error('❌ Falha ao conectar progresso real:', error);
     }
   }
 
   /**
-   * Mostra resultado final
+   * Fecha conexão de progresso do servidor
    */
-  showResult() {
-    if (!this.generatedVideo) return;
+  closeProgressConnection() {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+      console.log('🔌 Conexão de progresso fechada');
+    }
+  }
 
+  /**
+   * Mostra resultado do vídeo renderizado pelo servidor
+   */
+  showServerVideoResult() {
+    if (!this.generatedVideo) {
+      console.error('❌ Nenhum vídeo foi gerado pelo servidor');
+      return;
+    }
+
+    console.log('🎬 Mostrando resultado do vídeo do servidor');
+    
+    // Fechar conexão de progresso
+    this.closeProgressConnection();
+    
     // Esconder progresso e mostrar resultado
     this.hideProgressSection();
-    this.elements.resultSection.hidden = false;
+    this.elements.resultSection.style.display = 'block';
 
+    // Criar URL do vídeo
+    const videoUrl = URL.createObjectURL(this.generatedVideo);
+    console.log('🔗 URL do vídeo criada:', videoUrl);
+    
     // Configurar vídeo preview
     if (this.elements.previewVideo) {
-      const videoUrl = URL.createObjectURL(this.generatedVideo);
       this.elements.previewVideo.src = videoUrl;
       this.elements.previewVideo.load();
+      this.elements.previewVideo.controls = true;
+      this.elements.previewVideo.muted = true;
+      this.elements.previewVideo.loop = true;
+    }
+
+    // Configurar botão de download
+    if (this.elements.downloadBtn) {
+      this.elements.downloadBtn.href = videoUrl;
+      const userName = this.elements.userNameInput?.value.trim() || 'usuario';
+      this.elements.downloadBtn.download = `time-traveler-${userName.toLowerCase().replace(/\s+/g, '-')}.mp4`;
+      this.elements.downloadBtn.textContent = '⬇️ Baixar Vídeo MP4';
+      this.elements.downloadBtn.onclick = null; // Usar download nativo do link
+      console.log('💾 Download configurado:', this.elements.downloadBtn.download);
     }
 
     // Scroll para resultado
@@ -805,6 +620,15 @@ class CardCreatorInterface {
       behavior: 'smooth',
       block: 'center'
     });
+    
+    console.log('✅ Resultado do servidor exibido com sucesso');
+  }
+
+  /**
+   * Mostra resultado final (função original mantida para compatibilidade)
+   */
+  showResult() {
+    this.showServerVideoResult();
   }
 
 
@@ -812,8 +636,8 @@ class CardCreatorInterface {
    * Reseta interface para criar novo card
    */
   resetInterface() {
-    // Restaurar console.log se necessário
-    this.restoreConsoleLog();
+    // Fechar conexão de progresso se necessário
+    this.closeProgressConnection();
     
     // Limpar dados
     this.selectedFile = null;
@@ -917,8 +741,8 @@ class CardCreatorInterface {
    * Destroi interface e limpa recursos
    */
   destroy() {
-    // Restaurar console.log original
-    this.restoreConsoleLog();
+    // Fechar conexão de progresso
+    this.closeProgressConnection();
     
     // Limpar card
     if (this.userCard) {
