@@ -478,11 +478,17 @@ class CardCreatorInterface {
   }
 
   /**
-   * Mostra seção de progresso simplificada
+   * Mostra seção de progresso substituindo o formulário
    */
   showProgressSection() {
+    // Esconder formulário de upload/nome
+    const formContent = document.querySelector('.remotion-form-content');
+    if (formContent) {
+      formContent.style.display = 'none';
+    }
+
     if (this.elements.progressSection) {
-      this.elements.progressSection.style.display = 'block';
+      this.elements.progressSection.style.display = 'flex';
       this.elements.resultSection.style.display = 'none';
     }
 
@@ -494,11 +500,17 @@ class CardCreatorInterface {
   }
 
   /**
-   * Esconde seção de progresso
+   * Esconde seção de progresso e restaura formulário
    */
   hideProgressSection() {
     if (this.elements.progressSection) {
       this.elements.progressSection.style.display = 'none';
+    }
+    
+    // Mostrar formulário novamente
+    const formContent = document.querySelector('.remotion-form-content');
+    if (formContent) {
+      formContent.style.display = 'block';
     }
   }
 
@@ -610,7 +622,7 @@ class CardCreatorInterface {
       this.elements.downloadBtn.href = videoUrl;
       const userName = this.elements.userNameInput?.value.trim() || 'usuario';
       this.elements.downloadBtn.download = `time-traveler-${userName.toLowerCase().replace(/\s+/g, '-')}.mp4`;
-      this.elements.downloadBtn.textContent = '⬇️ Baixar Vídeo MP4';
+      this.elements.downloadBtn.textContent = 'Baixar vídeo para Instagram';
       this.elements.downloadBtn.onclick = null; // Usar download nativo do link
       console.log('💾 Download configurado:', this.elements.downloadBtn.download);
     }

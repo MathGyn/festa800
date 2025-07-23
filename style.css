@@ -895,48 +895,39 @@ html {
     width: 100%;
 }
 
-/* ===== CARD CREATION PROGRESS (NEW SIMPLIFIED) ===== */
+/* ===== CARD CREATION PROGRESS (ULTRA SIMPLIFIED) ===== */
 .card-creation-progress {
-    padding: 60px 20px;
-    text-align: center;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-    min-height: 400px;
+    padding: 40px 20px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.progress-container {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 40px;
-    background: rgba(192, 130, 41, 0.1);
-    border-radius: 20px;
-    border: 2px solid rgba(192, 130, 41, 0.4);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(192, 130, 41, 0.2);
+.progress-layout {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    max-width: 800px;
+    width: 100%;
 }
 
-.progress-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #c08229;
-    margin-bottom: 30px;
+.progress-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #cebf9f;
     font-family: 'Orbitron', monospace;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(192, 130, 41, 0.3);
+    flex: 1;
+    text-align: left;
 }
 
 .circular-loader {
-    width: 80px;
-    height: 80px;
-    border: 4px solid rgba(206, 191, 159, 0.2);
-    border-top: 4px solid #c08229;
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(206, 191, 159, 0.2);
+    border-top: 3px solid #c08229;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 0 auto 30px;
-    box-shadow: 0 0 20px rgba(192, 130, 41, 0.3);
+    flex-shrink: 0;
 }
 
 @keyframes spin {
@@ -945,31 +936,95 @@ html {
 }
 
 .frame-counter {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #cebf9f;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #c08229;
     font-family: 'Orbitron', monospace;
-    text-shadow: 0 0 15px rgba(192, 130, 41, 0.6);
-    letter-spacing: 3px;
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
 }
 
 /* Animação de pulsação para o contador */
 .frame-counter.updating {
-    animation: pulse 0.3s ease-in-out;
+    animation: pulse 0.2s ease-in-out;
 }
 
 @keyframes pulse {
     0% { 
         transform: scale(1); 
-        color: #cebf9f;
+        color: #c08229;
     }
     50% { 
-        transform: scale(1.1); 
-        color: #c08229;
-        text-shadow: 0 0 20px rgba(192, 130, 41, 0.8);
+        transform: scale(1.05); 
+        color: #cebf9f;
     }
     100% { 
         transform: scale(1); 
-        color: #cebf9f;
+        color: #c08229;
     }
+}
+
+/* ===== BUTTON STYLES (ROUNDED + GOLDEN) ===== */
+.remotion-download-btn {
+    background: linear-gradient(135deg, #c08229 0%, #d4942a 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 15px rgba(192, 130, 41, 0.3);
+}
+
+.remotion-download-btn:hover {
+    background: linear-gradient(135deg, #d4942a 0%, #e6a82c 100%);
+    box-shadow: 0 6px 20px rgba(192, 130, 41, 0.4);
+    transform: translateY(-2px);
+}
+
+.remotion-new-card-btn {
+    background: transparent;
+    color: #cebf9f;
+    padding: 16px 32px;
+    border: 2px solid #cebf9f;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remotion-new-card-btn:hover {
+    background: #cebf9f;
+    color: #1a1a1a;
+}
+
+.remotion-generate-btn {
+    background: linear-gradient(135deg, #c08229 0%, #d4942a 100%);
+    color: white;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(192, 130, 41, 0.3);
+}
+
+.remotion-generate-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d4942a 0%, #e6a82c 100%);
+    box-shadow: 0 6px 20px rgba(192, 130, 41, 0.4);
+    transform: translateY(-2px);
+}
+
+.remotion-generate-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
 }
