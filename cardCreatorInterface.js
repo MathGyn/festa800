@@ -269,18 +269,17 @@ class CardCreatorInterface {
       const userName = this.elements.userNameInput.value.trim();
       const shouldRemoveBg = this.elements.removeBgCheck?.checked !== false;
 
-      // Mostrar seção de progresso simplificada
+      // Mostrar seção de progresso e interceptar logs
       this.showProgressSection();
       this.updateFrameCounter(0, 300);
+      this.setupRenderingLogInterceptor();
       
       // Processar foto e remover fundo
       if (shouldRemoveBg) {
         this.processedImage = await this.backgroundRemover.removeBackground(
           this.selectedFile,
           (progress, message) => {
-            // Simular frames iniciais durante processamento
-            const fakeFrames = Math.floor(progress * 30);
-            this.updateFrameCounter(fakeFrames, 300);
+            console.log(`Background removal progress: ${progress}`);
           }
         );
       } else {
@@ -303,12 +302,6 @@ class CardCreatorInterface {
         onContactClick: null
       });
 
-      // Simular progresso final até 300
-      for (let i = 30; i <= 300; i += 10) {
-        await this.delay(100);
-        this.updateFrameCounter(i, 300);
-      }
-
       // Mostrar preview do card criado
       this.showCardPreview();
       
@@ -318,6 +311,7 @@ class CardCreatorInterface {
       console.error('Erro ao gerar card:', error);
       this.showNotification(`Erro: ${error.message}`, 'error');
       this.hideProgressSection();
+      this.restoreConsoleLog();
     } finally {
       this.isGenerating = false;
     }
@@ -451,6 +445,9 @@ class CardCreatorInterface {
       // Mostrar vídeo gerado (substitui preview pelo vídeo final)
       this.showGeneratedVideo();
       
+      // Restaurar console.log original
+      this.restoreConsoleLog();
+      
       // Atualizar botão apenas após vídeo ser mostrado
       this.elements.downloadBtn.textContent = '⬇️ Baixar MP4';
       this.elements.downloadBtn.onclick = () => this.downloadVideo();
@@ -525,8 +522,7 @@ class CardCreatorInterface {
         
         const progress = currentFrame / totalFrames;
         
-        // Atualizar contador de frames na nova interface
-        this.updateFrameCounter(currentFrame + 1, totalFrames);
+        // Log padronizado que será capturado pelo interceptor
         this.elements.downloadBtn.textContent = currentFrame + 1 === totalFrames ? 
           '📹 Gravando vídeo...' : `🎬 Renderizando...`;
         console.log(`📸 Renderizando frame ${currentFrame + 1}/${totalFrames} (${Math.round(progress * 100)}%)`);
@@ -744,6 +740,50 @@ class CardCreatorInterface {
   }
 
   /**
+   * Intercepta logs de renderização para atualizar contador de frames
+   */
+  setupRenderingLogInterceptor() {
+    // Salvar referência original do console.log
+    this.originalConsoleLog = console.log;
+    
+    // Interceptar console.log para capturar frames de renderização
+    console.log = (...args) => {
+      // Chamar console.log original
+      this.originalConsoleLog.apply(console, args);
+      
+      // Verificar se é um log de renderização de frame
+      const logString = args.join(' ');
+      
+      // Padrões de log de renderização que queremos capturar
+      const framePatterns = [
+        /📸 Renderizando frame (\d+)\/(\d+)/,
+        /Frame (\d+)\/(\d+)/,
+        /Renderizando (\d+)\/(\d+)/,
+        /🎬 Frames (\d+)\/(\d+)/
+      ];
+      
+      framePatterns.forEach(pattern => {
+        const match = logString.match(pattern);
+        if (match) {
+          const current = parseInt(match[1]);
+          const total = parseInt(match[2]);
+          this.updateFrameCounter(current, total);
+        }
+      });
+    };
+  }
+
+  /**
+   * Restaura console.log original
+   */
+  restoreConsoleLog() {
+    if (this.originalConsoleLog) {
+      console.log = this.originalConsoleLog;
+      this.originalConsoleLog = null;
+    }
+  }
+
+  /**
    * Mostra resultado final
    */
   showResult() {
@@ -772,6 +812,9 @@ class CardCreatorInterface {
    * Reseta interface para criar novo card
    */
   resetInterface() {
+    // Restaurar console.log se necessário
+    this.restoreConsoleLog();
+    
     // Limpar dados
     this.selectedFile = null;
     this.processedImage = null;
@@ -874,6 +917,9 @@ class CardCreatorInterface {
    * Destroi interface e limpa recursos
    */
   destroy() {
+    // Restaurar console.log original
+    this.restoreConsoleLog();
+    
     // Limpar card
     if (this.userCard) {
       this.userCard.destroy();
