@@ -11,48 +11,48 @@ const cardData = [
     title: "Gin",
     description: "Premium gin brands",
     label: "Spirits",
-    backgroundImage: "public/gin.jpg",
-    bottleImage: "public/gin.png"
+    backgroundImage: "gin.jpg",
+    bottleImage: "gin.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Vodka",
     description: "Vodka importada premium",
     label: "Importada",
-    backgroundImage: "public/vodka.jpg",
-    bottleImage: "public/vodka.png"
+    backgroundImage: "vodka.jpg",
+    bottleImage: "vodka.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Whisky",
     description: "Selection of fine whiskies",
     label: "Premium",
-    backgroundImage: "public/whisky.jpg",
-    bottleImage: "public/whisky.png"
+    backgroundImage: "whisky.jpg",
+    bottleImage: "whisky.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Espumante",
     description: "Champagne and sparkling wines",
     label: "Celebração",
-    backgroundImage: "public/espumante.jpg",
-    bottleImage: "public/espumante.png"
+    backgroundImage: "espumante.jpg",
+    bottleImage: "espumante.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Energéticos",
     description: "Red Bull and energy drinks",
     label: "Energia",
-    backgroundImage: "public/energeticos.jpg",
-    bottleImage: "public/energeticos.png"
+    backgroundImage: "energeticos.jpg",
+    bottleImage: "energeticos.png"
   },
   {
     color: "rgba(0, 0, 0, 0.6)",
     title: "Cerveja",
     description: "Cervejas artesanais e importadas",
     label: "Cerveja",
-    backgroundImage: "public/cerveja.jpg",
-    bottleImage: "public/cerveja.png"
+    backgroundImage: "cerveja.jpg",
+    bottleImage: "cerveja.png"
   },
 ];
 

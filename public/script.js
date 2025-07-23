@@ -568,7 +568,7 @@ function initGridDistortion() {
         mouse: 0.1,
         strength: 0.15,
         relaxation: 0.9,
-        imageSrc: 'public/GREG-320.png'
+        imageSrc: 'GREG-320.png'
     };
     
     // Three.js setup
@@ -781,97 +781,97 @@ function initMasonryGallery() {
     const items = [
         {
             id: "1",
-            img: "public/foto1.jpg",
+            img: "foto1.jpg",
             url: "#",
             height: 400,
         },
         {
             id: "2",
-            img: "public/foto2.jpg",
+            img: "foto2.jpg",
             url: "#",
             height: 300,
         },
         {
             id: "3",
-            img: "public/foto3.jpg",
+            img: "foto3.jpg",
             url: "#",
             height: 500,
         },
         {
             id: "4",
-            img: "public/foto4.jpg",
+            img: "foto4.jpg",
             url: "#",
             height: 350,
         },
         {
             id: "5",
-            img: "public/foto5.jpg",
+            img: "foto5.jpg",
             url: "#",
             height: 450,
         },
         {
             id: "6",
-            img: "public/foto6.jpg",
+            img: "foto6.jpg",
             url: "#",
             height: 320,
         },
         {
             id: "7",
-            img: "public/foto7.jpg",
+            img: "foto7.jpg",
             url: "#",
             height: 480,
         },
         {
             id: "8",
-            img: "public/foto8.jpg",
+            img: "foto8.jpg",
             url: "#",
             height: 380,
         },
         {
             id: "9",
-            img: "public/foto9.jpg",
+            img: "foto9.jpg",
             url: "#",
             height: 420,
         },
         {
             id: "10",
-            img: "public/foto10.jpg",
+            img: "foto10.jpg",
             url: "#",
             height: 360,
         },
         {
             id: "11",
-            img: "public/foto11.jpg",
+            img: "foto11.jpg",
             url: "#",
             height: 490,
         },
         {
             id: "12",
-            img: "public/foto12.jpg",
+            img: "foto12.jpg",
             url: "#",
             height: 330,
         },
         {
             id: "13",
-            img: "public/foto13.jpg",
+            img: "foto13.jpg",
             url: "#",
             height: 460,
         },
         {
             id: "14",
-            img: "public/foto14.jpg",
+            img: "foto14.jpg",
             url: "#",
             height: 340,
         },
         {
             id: "15",
-            img: "public/foto15.jpg",
+            img: "foto15.jpg",
             url: "#",
             height: 510,
         },
         {
             id: "16",
-            img: "public/foto16.jpg",
+            img: "foto16.jpg",
             url: "#",
             height: 390,
         }
@@ -913,7 +913,7 @@ function initProfileCards() {
         {
             name: "RUFUS DU SOL",
             role: "Electronic / House",
-            image: "public/artista1.png",
+            image: "artista1.png",
             handle: "rufusdusol",
             status: "Headliner",
             contactText: "Listen",
@@ -922,7 +922,7 @@ function initProfileCards() {
         {
             name: "ANYMA",
             role: "Techno / Visual",
-            image: "public/artista3.png",
+            image: "artista3.png",
             handle: "anyma",
             status: "Headliner",
             contactText: "Listen",
@@ -931,7 +931,7 @@ function initProfileCards() {
         {
             name: "ARTBAT",
             role: "Melodic Techno",
-            image: "public/artista2.png",
+            image: "artista2.png",
             handle: "artbat",
             status: "Headliner",
             contactText: "Listen",
@@ -940,7 +940,7 @@ function initProfileCards() {
         {
             name: "AMELIE LENS",
             role: "Techno",
-            image: "public/artista4.png",
+            image: "artista4.png",
             handle: "amelielens",
             status: "Special",
             contactText: "Listen",
@@ -949,7 +949,7 @@ function initProfileCards() {
         {
             name: "WHOMADEWHO",
             role: "Electronic / Indie",
-            image: "public/artista5.png",
+            image: "artista5.png",
             handle: "whomadewho",
             status: "Special",
             contactText: "Listen",
