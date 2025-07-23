@@ -14,6 +14,7 @@ class CardCreatorInterface {
     this.processedImage = null;
     this.userCard = null;
     this.generatedVideo = null;
+    this.isGenerating = false;
     
     // Elementos DOM
     this.elements = {};
@@ -36,25 +37,25 @@ class CardCreatorInterface {
    */
   initializeElements() {
     // Upload section
-    this.elements.uploadArea = document.getElementById('uploadArea');
-    this.elements.photoInput = document.getElementById('photoInput');
+    this.elements.uploadArea = document.getElementById('remotion-upload-area');
+    this.elements.photoInput = document.getElementById('remotion-file-input');
     
     // Form section
-    this.elements.userNameInput = document.getElementById('userNameInput');
+    this.elements.userNameInput = document.getElementById('remotion-name-input');
     this.elements.charCounter = this.elements.userNameInput?.nextElementSibling;
     this.elements.removeBgCheck = document.getElementById('removeBgCheck');
-    this.elements.generateBtn = document.getElementById('generateBtn');
+    this.elements.generateBtn = document.getElementById('remotion-generate-btn');
     
     // Progress section
-    this.elements.progressSection = document.getElementById('progressSection');
+    this.elements.progressSection = document.getElementById('remotion-progress-section');
     this.elements.progressFill = document.getElementById('progressFill');
     this.elements.progressSteps = document.querySelectorAll('.step');
     
     // Result section
-    this.elements.resultSection = document.getElementById('resultSection');
-    this.elements.previewVideo = document.getElementById('previewVideo');
-    this.elements.downloadBtn = document.getElementById('downloadBtn');
-    this.elements.createNewBtn = document.getElementById('createNewBtn');
+    this.elements.resultSection = document.getElementById('remotion-result-section');
+    this.elements.previewVideo = document.getElementById('remotion-video-preview');
+    this.elements.downloadBtn = document.getElementById('remotion-download-btn');
+    this.elements.createNewBtn = document.getElementById('remotion-new-card-btn');
 
     // Verificar se elementos críticos existem
     if (!this.elements.uploadArea || !this.elements.generateBtn) {
@@ -257,6 +258,14 @@ class CardCreatorInterface {
       return;
     }
 
+    // Prevenir múltiplas gerações simultâneas
+    if (this.isGenerating) {
+      console.log('⚠️ Geração já em andamento, ignorando nova tentativa');
+      return;
+    }
+
+    this.isGenerating = true;
+
     try {
       const userName = this.elements.userNameInput.value.trim();
       const shouldRemoveBg = this.elements.removeBgCheck?.checked !== false;
@@ -315,6 +324,8 @@ class CardCreatorInterface {
       console.error('Erro ao gerar card:', error);
       this.showNotification(`Erro: ${error.message}`, 'error');
       this.hideProgressSection();
+    } finally {
+      this.isGenerating = false;
     }
   }
 
@@ -330,6 +341,12 @@ class CardCreatorInterface {
     }
 
     try {
+      // Limpar qualquer preview anterior
+      const existingContainer = document.getElementById('cardPreviewContainer');
+      if (existingContainer) {
+        existingContainer.remove();
+        console.log('🧹 Preview anterior removido');
+      }
       // Criar elemento do card
       console.log('📱 Criando elemento do ProfileCard...');
       const cardElement = this.userCard.createElement();
@@ -358,14 +375,24 @@ class CardCreatorInterface {
       // Adicionar ao DOM
       console.log('🌐 Adicionando ao DOM...', { 
         previewVideo: this.elements.previewVideo,
-        parent: this.elements.previewVideo?.parentNode 
+        parent: this.elements.previewVideo?.parentNode,
+        resultSection: this.elements.resultSection
       });
       
       if (this.elements.previewVideo && this.elements.previewVideo.parentNode) {
         this.elements.previewVideo.parentNode.replaceChild(previewContainer, this.elements.previewVideo);
-        console.log('✅ Preview container adicionado ao DOM');
+        console.log('✅ Preview container adicionado ao DOM via replaceChild');
+      } else if (this.elements.resultSection) {
+        // Fallback: limpar result section e adicionar preview container
+        const existingVideo = this.elements.resultSection.querySelector('#remotion-video-preview');
+        if (existingVideo) {
+          existingVideo.remove();
+        }
+        // Adicionar preview container como primeiro filho
+        this.elements.resultSection.insertBefore(previewContainer, this.elements.resultSection.firstChild);
+        console.log('✅ Preview container adicionado ao DOM via fallback');
       } else {
-        console.error('❌ Elementos não encontrados para adicionar ao DOM');
+        console.error('❌ Nem previewVideo nem resultSection encontrados');
       }
       
       // Configurar botão de download para gerar vídeo
@@ -415,19 +442,22 @@ class CardCreatorInterface {
   
   async generateVideoFromPreview(previewContainer, cardElement) {
     try {
-      // Desabilitar botão e mostrar loading
+      // Desabilitar botão e mostrar estado inicial
       this.elements.downloadBtn.disabled = true;
-      this.elements.downloadBtn.textContent = '🎬 Gerando vídeo...';
+      this.elements.downloadBtn.textContent = '🎬 Preparando...';
       
       console.log('🎬 Iniciando geração de vídeo do preview...');
       
-      // Gerar vídeo a partir do preview
+      // Gerar vídeo a partir do preview (mantém contagem de frames)
       this.generatedVideo = await this.generateVideoFromCard(cardElement);
       
-      // Mostrar vídeo gerado
+      // Aguardar um pouco para user ver o status "Gravando vídeo"
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mostrar vídeo gerado (substitui preview pelo vídeo final)
       this.showGeneratedVideo();
       
-      // Atualizar botão
+      // Atualizar botão apenas após vídeo ser mostrado
       this.elements.downloadBtn.textContent = '⬇️ Baixar MP4';
       this.elements.downloadBtn.onclick = () => this.downloadVideo();
       this.elements.downloadBtn.disabled = false;
@@ -454,8 +484,8 @@ class CardCreatorInterface {
     const ctx = canvas.getContext('2d');
     
     const fps = 30;
-    const duration = 3;
-    const totalFrames = fps * duration;
+    const duration = 10; // 10 segundos para 300 frames
+    const totalFrames = 300; // Fixo em 300 frames
     
     // Configurar MediaRecorder
     const stream = canvas.captureStream(fps);
@@ -472,7 +502,15 @@ class CardCreatorInterface {
       };
       
       recorder.onstop = () => {
+        // Manter contagem até preview ser mostrado
+        this.elements.downloadBtn.textContent = '🎬 Finalizando...';
+        
         const blob = new Blob(chunks, { type: 'video/webm' });
+        console.log('✅ Vídeo renderizado com sucesso:', {
+          size: `${(blob.size / 1024 / 1024).toFixed(2)}MB`,
+          frames: totalFrames,
+          duration: `${duration}s`
+        });
         resolve(blob);
       };
       
@@ -485,11 +523,17 @@ class CardCreatorInterface {
       
       const renderFrame = async () => {
         if (currentFrame >= totalFrames) {
+          // Só para gravação quando atingir 300 frames
+          this.elements.downloadBtn.textContent = '📹 Gravando vídeo...';
           setTimeout(() => recorder.stop(), 100);
           return;
         }
         
         const progress = currentFrame / totalFrames;
+        
+        // Manter contagem de frames sempre visível
+        this.elements.downloadBtn.textContent = `🎬 Frames ${currentFrame + 1}/${totalFrames}`;
+        console.log(`📸 Renderizando frame ${currentFrame + 1}/${totalFrames} (${Math.round(progress * 100)}%)`);
         
         // Simular movimento do mouse no card
         const time = progress * Math.PI * 2;
@@ -524,10 +568,12 @@ class CardCreatorInterface {
           ctx.drawImage(frameCanvas, 0, 0, canvas.width, canvas.height);
           
           currentFrame++;
+          
+          // Aguardar próximo frame
           setTimeout(renderFrame, 1000 / fps);
           
         } catch (error) {
-          console.error('Erro ao capturar frame:', error);
+          console.error(`Erro ao capturar frame ${currentFrame + 1}/${totalFrames}:`, error);
           currentFrame++;
           setTimeout(renderFrame, 1000 / fps);
         }
@@ -539,11 +585,20 @@ class CardCreatorInterface {
   }
   
   showGeneratedVideo() {
-    if (!this.generatedVideo) return;
+    if (!this.generatedVideo) {
+      console.error('Nenhum vídeo gerado para mostrar');
+      return;
+    }
+    
+    console.log('🎥 Mostrando vídeo gerado:', {
+      size: `${(this.generatedVideo.size / 1024 / 1024).toFixed(2)}MB`,
+      type: this.generatedVideo.type
+    });
     
     // Criar elemento de vídeo
     const videoElement = document.createElement('video');
-    videoElement.src = URL.createObjectURL(this.generatedVideo);
+    const videoURL = URL.createObjectURL(this.generatedVideo);
+    videoElement.src = videoURL;
     videoElement.autoplay = true;
     videoElement.muted = true;
     videoElement.loop = true;
@@ -556,18 +611,32 @@ class CardCreatorInterface {
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     `;
     
+    // Eventos do vídeo para debug
+    videoElement.onloadstart = () => console.log('🎥 Vídeo: Iniciando carregamento');
+    videoElement.oncanplay = () => console.log('🎥 Vídeo: Pronto para reproduzir');
+    videoElement.onerror = (e) => console.error('🎥 Erro no vídeo:', e);
+    
     // Substituir preview pelo vídeo
     const previewContainer = document.getElementById('cardPreviewContainer');
     if (previewContainer && previewContainer.parentNode) {
       previewContainer.parentNode.replaceChild(videoElement, previewContainer);
+      console.log('✅ Vídeo exibido no lugar do preview');
+    } else {
+      console.error('❌ Container de preview não encontrado');
     }
   }
   
   downloadVideo() {
     if (!this.generatedVideo) {
+      console.error('❌ Tentativa de download sem vídeo gerado');
       this.showNotification('Nenhum vídeo foi gerado ainda.', 'error');
       return;
     }
+
+    console.log('⬇️ Iniciando download do vídeo:', {
+      size: `${(this.generatedVideo.size / 1024 / 1024).toFixed(2)}MB`,
+      type: this.generatedVideo.type
+    });
 
     // Nome do arquivo
     const userName = this.elements.userNameInput?.value.trim() || 'usuario';
@@ -581,18 +650,55 @@ class CardCreatorInterface {
       a.download = fileName;
       a.style.display = 'none';
       
+      // Verificar se o blob URL foi criado com sucesso
+      if (!url || url === 'blob:') {
+        throw new Error('Falha ao criar URL do blob');
+      }
+      
       document.body.appendChild(a);
-      a.click();
+      
+      // Tentar forçar o download
+      try {
+        a.click();
+        console.log('✅ Clique no link de download executado');
+      } catch (clickError) {
+        console.warn('Erro no clique automático, tentando método alternativo:', clickError);
+        
+        // Método alternativo: usar dispatchEvent
+        const clickEvent = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: false
+        });
+        a.dispatchEvent(clickEvent);
+      }
+      
       document.body.removeChild(a);
       
-      // Limpar URL após delay
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      // Limpar URL após delay maior para garantir download
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        console.log('🧹 URL do blob limpa');
+      }, 5000);
       
-      this.showNotification('Download iniciado! 🎉', 'success');
+      this.showNotification(`Download iniciado: ${fileName} 🎉`, 'success');
       
     } catch (error) {
-      console.error('Erro no download:', error);
-      this.showNotification('Erro ao fazer download. Tente novamente.', 'error');
+      console.error('❌ Erro no download:', error);
+      this.showNotification(`Erro ao fazer download: ${error.message}`, 'error');
+      
+      // Fallback: tentar abrir em nova aba
+      try {
+        const url = URL.createObjectURL(this.generatedVideo);
+        const newWindow = window.open(url, '_blank');
+        if (newWindow) {
+          this.showNotification('Vídeo aberto em nova aba. Clique com botão direito para salvar.', 'info');
+        } else {
+          throw new Error('Popup bloqueado');
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback também falhou:', fallbackError);
+      }
     }
   }
 

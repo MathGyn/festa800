@@ -12,6 +12,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    minify: false,
+    rollupOptions: {
+      input: 'index.html'
+    }
   }
 })

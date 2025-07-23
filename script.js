@@ -1,9 +1,8 @@
 // MasonryGallery e ProfileCardGallery são carregados via window globals
-// Comentando imports ES6 problemáticos - usando classes globais
-// import ShapeBlur from './shapeBlur.js';
-// import MagicBento from './MagicBento.js';
-// import MetaBalls from './MetaBalls.js';
-// import StarBorder from './StarBorder.js';
+// import ShapeBlur from ./shapeBlur.js;
+// import MagicBento from ./MagicBento.js;
+// import MetaBalls from ./MetaBalls.js;
+// import StarBorder from ./StarBorder.js;
 
 document.addEventListener('DOMContentLoaded', function() {
     const loadingScreen = document.getElementById('loadingScreen');
@@ -11,19 +10,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const scrollIndicator = document.querySelector('.scroll-indicator');
     
     // Initialize Hyperspeed effect
-    // initHyperspeed(); // Comentado - classe não disponível
+    initHyperspeed();
     
     // Initialize ShapeBlur effect
-    // initShapeBlur(); // Comentado - classe não disponível
+    initShapeBlur();
     
     // Initialize MagicBento effect
-    // initMagicBento(); // Comentado - classe não disponível
+    initMagicBento();
     
-    // Initialize MetaBalls effect
-    // initMetaBalls(); // Comentado - classe não disponível
+    // Initialize Threads effect
+    initThreads();
     
     // Initialize StarBorder effect
-    // initStarBorder(); // Comentado - classe não disponível
+    initStarBorder();
     
     function initShapeBlur() {
         const container = document.getElementById('shapeBlurContainer');
@@ -58,21 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function initMetaBalls() {
+    function initThreads() {
         const container = document.getElementById('metaBallsContainer');
         if (container) {
-            const metaBalls = new MetaBalls(container, {
-                color: "#cebf9f",
-                cursorBallColor: "#e6d5b7",
-                cursorBallSize: 4,
-                ballCount: 12,
-                animationSize: 25,
-                enableMouseInteraction: true,
-                enableTransparency: true,
-                hoverSmoothness: 0.02,
-                clumpFactor: 0.8,
-                speed: 0.2
+            const threads = new Threads(container, {
+                color: [0.753, 0.749, 0.624], // #cebf9f convertido para RGB 0-1
+                amplitude: 0.8, // Mais sutil como background
+                distance: 0.05, // Linhas mais próximas
+                enableMouseInteraction: true
             });
+            console.log('✅ Threads effect inicializado com sucesso');
         }
     }
     
@@ -375,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function addTemporalEffects() {
         const timeCoordinates = document.querySelector('.time-coordinates span');
         if (!timeCoordinates) {
-            console.log('Time coordinates element not found - skipping temporal effects');
+            // Elemento não existe no HTML atual - não é um erro
             return;
         }
         
@@ -396,10 +390,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addDynamicBackground() {
         const hero = document.querySelector('.hero');
-        const overlay = document.querySelector('.time-overlay');
+        const overlay = document.querySelector('.video-overlay');
         
         if (!hero || !overlay) {
-            console.log('Hero or overlay not found - skipping dynamic background');
+            // Elementos não existem ou têm nomes diferentes - não é um erro
             return;
         }
         
@@ -417,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTypingEffect() {
         const heroSubtitle = document.querySelector('.hero-subtitle');
         if (!heroSubtitle) {
-            console.log('Hero subtitle element not found - skipping typing effect');
+            // Elemento não existe no HTML atual - não é um erro
             return;
         }
         

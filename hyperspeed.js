@@ -1,7 +1,6 @@
 // Hyperspeed component converted to vanilla JS from ReactBits
 // Usando Three.js via CDN (global THREE)
-// Postprocessing não está disponível via CDN - comentando
-// import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from 'postprocessing';
+// import { BloomEffect, EffectComposer, EffectPass, RenderPass, SMAAEffect, SMAAPreset } from "postprocessing";
 
 class Hyperspeed {
   constructor(container, effectOptions = {}) {
@@ -208,7 +207,7 @@ class HyperspeedApp {
     });
     this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.composer = new EffectComposer(this.renderer);
+    // Removido EffectComposer - usando renderer diretamente
     container.append(this.renderer.domElement);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -276,58 +275,19 @@ class HyperspeedApp {
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
-    this.composer.setSize(width, height);
+    // Removed composer.setSize
   }
 
   initPasses() {
-    this.renderPass = new RenderPass(this.scene, this.camera);
-    this.bloomPass = new EffectPass(
-      this.camera,
-      new BloomEffect({
-        luminanceThreshold: 0.2,
-        luminanceSmoothing: 0,
-        resolutionScale: 1
-      })
-    );
-
-    const smaaPass = new EffectPass(
-      this.camera,
-      new SMAAEffect({
-        preset: SMAAPreset.MEDIUM,
-        searchImage: SMAAEffect.searchImageDataURL,
-        areaImage: SMAAEffect.areaImageDataURL
-      })
-    );
-    this.renderPass.renderToScreen = false;
-    this.bloomPass.renderToScreen = false;
-    smaaPass.renderToScreen = true;
-    this.composer.addPass(this.renderPass);
-    this.composer.addPass(this.bloomPass);
-    this.composer.addPass(smaaPass);
+    // Simplified rendering without post-processing effects
+    console.log('Hyperspeed: Using simple rendering without post-processing');
   }
 
   loadAssets() {
-    const assets = this.assets;
+    // Simplified asset loading without SMAA dependencies
     return new Promise((resolve) => {
-      const manager = new THREE.LoadingManager(resolve);
-
-      const searchImage = new Image();
-      const areaImage = new Image();
-      assets.smaa = {};
-      searchImage.addEventListener("load", function () {
-        assets.smaa.search = this;
-        manager.itemEnd("smaa-search");
-      });
-
-      areaImage.addEventListener("load", function () {
-        assets.smaa.area = this;
-        manager.itemEnd("smaa-area");
-      });
-      manager.itemStart("smaa-search");
-      manager.itemStart("smaa-area");
-
-      searchImage.src = SMAAEffect.searchImageDataURL;
-      areaImage.src = SMAAEffect.areaImageDataURL;
+      console.log('Hyperspeed: Assets loaded (simplified)');
+      resolve();
     });
   }
 
@@ -418,7 +378,7 @@ class HyperspeedApp {
   }
 
   render(delta) {
-    this.composer.render(delta);
+    this.renderer.render(this.scene, this.camera);
   }
 
   dispose() {
@@ -428,7 +388,7 @@ class HyperspeedApp {
       this.renderer.dispose();
     }
     if (this.composer) {
-      this.composer.dispose();
+      // Renderer cleanup handled elsewhere
     }
     if (this.scene) {
       this.scene.clear();
@@ -443,7 +403,7 @@ class HyperspeedApp {
   }
 
   setSize(width, height, updateStyles) {
-    this.composer.setSize(width, height, updateStyles);
+    this.renderer.setSize(width, height, updateStyles);
   }
 
   tick() {
@@ -943,3 +903,6 @@ class Road {
 
 window.Hyperspeed = Hyperspeed;
 export default Hyperspeed;
+
+// Tornar disponível globalmente
+window.Hyperspeed = Hyperspeed;

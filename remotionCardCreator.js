@@ -9,30 +9,10 @@ class RemotionCardCreator {
       { icon: 'loading', text: 'Gravando vídeo', completed: false }
     ];
     this.currentStep = 0;
-    this.renderProgress = { current: 0, total: 300 }; // Corrigido para 300 frames
+    this.renderProgress = { current: 0, total: 300 }; // Frame progress (real server rendering)
     
     this.initializeElements();
     this.setupEventListeners();
-    // Adicionar MutationObserver para detectar alterações inesperadas no progresso
-    setTimeout(() => {
-      if (this.progressStepsEl) {
-        const observer = new MutationObserver((mutationsList) => {
-          for (const mutation of mutationsList) {
-            if (mutation.type === 'childList') {
-              console.log('🔍 MutationObserver: childList alterado!', mutation);
-            }
-            if (mutation.type === 'attributes') {
-              console.log('🔍 MutationObserver: attributes alterado!', mutation);
-            }
-            if (mutation.type === 'characterData') {
-              console.log('🔍 MutationObserver: characterData alterado!', mutation);
-            }
-          }
-        });
-        observer.observe(this.progressStepsEl, { childList: true, subtree: true, attributes: true, characterData: true });
-        console.log('👁️ MutationObserver (agressivo) ativado em progressStepsEl');
-      }
-    }, 1000);
   }
 
   initializeElements() {
@@ -46,19 +26,6 @@ class RemotionCardCreator {
     this.videoPreview = document.getElementById('remotion-video-preview');
     this.downloadBtn = document.getElementById('remotion-download-btn');
     this.newCardBtn = document.getElementById('remotion-new-card-btn');
-    
-    // Debug element initialization
-    console.log('🔧 Element initialization:');
-    console.log('- uploadArea:', this.uploadArea ? '✅' : '❌');
-    console.log('- fileInput:', this.fileInput ? '✅' : '❌');
-    console.log('- nameInput:', this.nameInput ? '✅' : '❌');
-    console.log('- generateBtn:', this.generateBtn ? '✅' : '❌');
-    console.log('- progressSection:', this.progressSection ? '✅' : '❌');
-    console.log('- progressStepsEl:', this.progressStepsEl ? '✅' : '❌');
-    console.log('- resultSection:', this.resultSection ? '✅' : '❌');
-    console.log('- videoPreview:', this.videoPreview ? '✅' : '❌');
-    console.log('- downloadBtn:', this.downloadBtn ? '✅' : '❌');
-    console.log('- newCardBtn:', this.newCardBtn ? '✅' : '❌');
   }
 
   setupEventListeners() {
@@ -78,26 +45,6 @@ class RemotionCardCreator {
     
     // Result buttons
     this.newCardBtn.addEventListener('click', this.resetForm.bind(this));
-    
-    // Debug: Add test button to simulate video result
-    if (window.location.href.includes('debug')) {
-      const testBtn = document.createElement('button');
-      testBtn.textContent = 'Test Show Result';
-      testBtn.style.position = 'fixed';
-      testBtn.style.top = '10px';
-      testBtn.style.right = '10px';
-      testBtn.style.zIndex = '99999';
-      testBtn.style.background = '#ff0000';
-      testBtn.style.color = 'white';
-      testBtn.style.padding = '10px';
-      testBtn.style.border = 'none';
-      testBtn.style.borderRadius = '5px';
-      testBtn.addEventListener('click', () => {
-        console.log('🧪 Testing showResult with fake URL...');
-        this.showResult('data:video/mp4;base64,');
-      });
-      document.body.appendChild(testBtn);
-    }
   }
 
   handleDragOver(e) {
@@ -183,75 +130,56 @@ class RemotionCardCreator {
     this.showProgress();
     
     try {
+      // 🔥 GERAR SESSION ID PARA PROGRESSO REAL
+      const sessionId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+      console.log(`🎯 SESSION ID GERADO: ${sessionId}`);
+      
+      // 🔥 CONECTAR AO PROGRESSO REAL DO SERVIDOR
+      this.connectToRealProgress(sessionId);
+      
       // Prepare form data
       const formData = new FormData();
       formData.append('userImage', this.selectedFile);
       formData.append('userName', this.nameInput.value.trim());
+      formData.append('sessionId', sessionId); // 🔥 ENVIAR SESSION ID
 
       // Send request to Remotion server
-      console.log('📡 Sending request to Remotion server...');
+      console.log('📡 Enviando requisição para servidor Remotion...');
+      
       const response = await fetch('http://localhost:3001/api/render-video', {
         method: 'POST',
         body: formData
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
+      console.log('📡 Resposta recebida, status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Server response error:', errorText);
+        console.error('❌ Erro do servidor:', errorText);
         throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
 
       // Get video blob
-      console.log('📦 Getting video blob from response...');
+      console.log('📦 Obtendo blob do vídeo...');
       const videoBlob = await response.blob();
-      console.log('📦 Video blob size:', videoBlob.size, 'bytes');
-      console.log('📦 Video blob type:', videoBlob.type);
+      console.log('📦 Blob recebido:', {
+        size: `${(videoBlob.size / 1024 / 1024).toFixed(2)}MB`,
+        type: videoBlob.type
+      });
       
       if (videoBlob.size === 0) {
-        throw new Error('Received empty video file from server');
-      }
-      
-      // Verificar se o blob é válido
-      if (!videoBlob.type.includes('video/') && !videoBlob.type.includes('application/octet-stream')) {
-        console.warn('⚠️ Blob type não é vídeo:', videoBlob.type);
-        // Tentar mesmo assim, pode ser que o servidor não definiu o Content-Type
+        throw new Error('Vídeo recebido está vazio');
       }
       
       const videoUrl = URL.createObjectURL(videoBlob);
-      console.log('🔗 Created video URL:', videoUrl);
-      
-      // Verificar se URL foi criada com sucesso
-      if (!videoUrl || videoUrl === 'blob:') {
-        throw new Error('Falha ao criar URL do blob de vídeo');
-      }
-      
-      console.log('✅ Pronto para mostrar resultado...');
+      console.log('🔗 URL do vídeo criada:', videoUrl);
       
       // Show result
       this.showResult(videoUrl);
       
     } catch (error) {
-      console.error('❌ Error generating video:', error);
-      console.error('❌ Error stack:', error.stack);
-      
-      // More detailed error handling
-      let errorMessage = 'Erro ao gerar o vídeo. Tente novamente.';
-      
-      if (error.message.includes('Failed to fetch')) {
-        errorMessage = 'Erro de conexão com o servidor. Verifique se o servidor Remotion está rodando na porta 3001.';
-        console.error('🔌 Connection error - check if Remotion server is running on port 3001');
-      } else if (error.message.includes('CORS')) {
-        errorMessage = 'Erro de CORS. Verifique as configurações do servidor.';
-        console.error('🌐 CORS error detected');
-      } else if (error.message.includes('empty video file')) {
-        errorMessage = 'O servidor retornou um arquivo de vídeo vazio. Tente novamente.';
-        console.error('📄 Empty video file received from server');
-      }
-      
-      alert(errorMessage);
+      console.error('Error generating video:', error);
+      alert('Erro ao gerar o vídeo. Tente novamente.');
       this.hideProgress();
     } finally {
       this.isProcessing = false;
@@ -263,94 +191,64 @@ class RemotionCardCreator {
     document.querySelector('.remotion-form-content').style.display = 'none';
     this.progressSection.style.display = 'block';
     this.resultSection.style.display = 'none';
-
-    // Adicionar contador fixo de frames se não existir
-    if (!document.getElementById('frame-progress-indicator')) {
-      const frameIndicator = document.createElement('div');
-      frameIndicator.id = 'frame-progress-indicator';
-      frameIndicator.style.fontSize = '1.2em';
-      frameIndicator.style.fontWeight = 'bold';
-      frameIndicator.style.margin = '16px 0';
-      frameIndicator.style.background = '#fffbe6';
-      frameIndicator.style.color = '#222';
-      frameIndicator.style.zIndex = '9999';
-      frameIndicator.style.display = 'block';
-      frameIndicator.style.position = 'relative';
-      frameIndicator.style.border = '2px solid #fbbf24';
-      frameIndicator.style.borderRadius = '8px';
-      frameIndicator.style.padding = '8px 16px';
-      this.progressSection.insertBefore(frameIndicator, this.progressStepsEl);
-      console.log('🟡 frame-progress-indicator criado:', frameIndicator, 'Pai:', this.progressSection);
-    }
-    // Logar HTML do container pai
-    console.log('🟡 HTML do progressSection após inserir indicador:', this.progressSection.innerHTML);
-
+    
     // Animate progress steps
     this.animateProgress();
-  }
-
-  // Remover updateFrameCounter completamente
-  // Atualizar contador fixo de frames
-  updateFrameProgressIndicator(renderedFrames, totalFrames) {
-    const indicator = document.getElementById('frame-progress-indicator');
-    console.log('🟡 updateFrameProgressIndicator chamado. Elemento:', indicator, 'Texto:', `${renderedFrames}/${totalFrames} frames`);
-    if (indicator) {
-      indicator.textContent = `${renderedFrames}/${totalFrames} frames`;
-    } else {
-      console.warn('❗ frame-progress-indicator NÃO encontrado no DOM ao tentar atualizar!');
-    }
+    // Cria o contador externo se não existir
+    setTimeout(() => {
+      const stepsContainer = this.progressSection.querySelector('.progress-cards-container');
+      if (stepsContainer) {
+        let frameCounterDiv = document.getElementById('external-frame-counter');
+        if (!frameCounterDiv) {
+          frameCounterDiv = document.createElement('div');
+          frameCounterDiv.id = 'external-frame-counter';
+          frameCounterDiv.style.background = '#fffbe6';
+          frameCounterDiv.style.color = '#222';
+          frameCounterDiv.style.fontSize = '1.2em';
+          frameCounterDiv.style.fontWeight = 'bold';
+          frameCounterDiv.style.margin = '16px auto 0 auto';
+          frameCounterDiv.style.border = '2px solid #fbbf24';
+          frameCounterDiv.style.borderRadius = '8px';
+          frameCounterDiv.style.padding = '8px 16px';
+          frameCounterDiv.style.textAlign = 'center';
+          frameCounterDiv.style.maxWidth = '320px';
+          frameCounterDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+          stepsContainer.parentNode.insertBefore(frameCounterDiv, stepsContainer.nextSibling);
+        }
+        frameCounterDiv.textContent = `Frames: ${this.renderProgress.current}/${this.renderProgress.total}`;
+        frameCounterDiv.style.display = 'block';
+      }
+    }, 0);
   }
 
   animateProgress() {
-    // Limpar explicitamente o container
-    this.progressStepsEl.innerHTML = '';
-
-    // Header
-    const header = document.createElement('div');
-    header.className = 'progress-header';
-    header.innerHTML = '<p>Aguarde. Seu card de viagem no tempo está sendo processado.</p>';
-    this.progressStepsEl.appendChild(header);
-
-    // Container dos steps
-    const stepsContainer = document.createElement('div');
-    stepsContainer.className = 'progress-cards-container';
-
-    this.progressSteps.forEach((step, index) => {
-      const isActive = index === this.currentStep;
-      const isCompleted = step.completed;
-      const stepDiv = document.createElement('div');
-      stepDiv.className = `progress-step${isActive ? ' active' : ''}${isCompleted ? ' completed' : ''}`;
-      stepDiv.setAttribute('data-step', index);
-
-      // Icon
-      let iconHTML = '';
-      if (isCompleted) {
-        iconHTML = '<div class="step-icon completed"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
-      } else if (isActive) {
-        iconHTML = '<div class="step-icon loading"><div class="spinner"></div></div>';
-      } else {
-        iconHTML = '<div class="step-icon pending"></div>';
-      }
-      const iconDiv = document.createElement('div');
-      iconDiv.innerHTML = iconHTML;
-      stepDiv.appendChild(iconDiv.firstChild);
-
-      // Texto do step (sem contador de frames)
-      const stepTextDiv = document.createElement('div');
-      stepTextDiv.className = 'step-text';
-      stepTextDiv.textContent = step.text;
-      stepDiv.appendChild(stepTextDiv);
-      stepsContainer.appendChild(stepDiv);
-    });
-
-    this.progressStepsEl.appendChild(stepsContainer);
-
-    // NÃO completar automaticamente o último step (Gravando vídeo)
+    this.progressStepsEl.innerHTML = `
+      <div class="progress-header">
+        <p>Aguarde. Seu card de viagem no tempo está sendo processado.</p>
+      </div>
+      <div class="progress-cards-container">
+        ${this.progressSteps.map((step, index) => {
+          const isActive = index === this.currentStep;
+          const isCompleted = step.completed;
+          const iconHTML = isCompleted 
+            ? '<div class="step-icon completed"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+            : isActive 
+              ? '<div class="step-icon loading"><div class="spinner"></div></div>'
+              : '<div class="step-icon pending"></div>';
+          // Não mostra mais contador de frames nos steps
+          return `
+            <div class="progress-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" data-step="${index}">
+              ${iconHTML}
+              <div class="step-text">${step.text}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    // Controle especial: NÃO completar automaticamente o último step (Gravando vídeo)
     if (this.currentStep < this.progressSteps.length - 1) {
       setTimeout(() => {
-        console.log(`⏰ setTimeout disparado para step ${this.currentStep} (text: ${this.progressSteps[this.currentStep].text})`);
         this.progressSteps[this.currentStep].completed = true;
-        console.log(`✅ progressSteps[${this.currentStep}].completed = true`);
         this.currentStep++;
         this.animateProgress();
       }, 2000);
@@ -381,6 +279,11 @@ class RemotionCardCreator {
     
     // Mark final step (Gravando vídeo) as completed
     this.markFinalStepCompleted();
+    // Remove o contador externo
+    const frameCounterDiv = document.getElementById('external-frame-counter');
+    if (frameCounterDiv) {
+      frameCounterDiv.remove();
+    }
     
     // Mostrar resultado imediatamente (sem delay)
     console.log('🔄 Hiding progress, showing result...');
@@ -401,7 +304,7 @@ class RemotionCardCreator {
     if (this.downloadBtn) {
       this.downloadBtn.href = videoUrl;
       this.downloadBtn.download = `time-traveler-${this.nameInput.value.toLowerCase().replace(/\s+/g, '-')}.mp4`;
-      console.log('📥 Download configurado:', this.downloadBtn.download);
+      console.log('💾 Download configurado:', this.downloadBtn.download);
     }
     
     // Add video load event listeners for debugging
@@ -451,56 +354,100 @@ class RemotionCardCreator {
     }, 100);
   }
 
-  startFrameProgressSimulation() {
-    // Simular progresso realístico de renderização de frames
+  // 🔥 CONECTAR AO PROGRESSO REAL DO SERVIDOR
+  connectToRealProgress(sessionId) {
+    console.log(`🔥 CONECTANDO AO PROGRESSO REAL: ${sessionId}`);
+    const progressUrl = `http://localhost:3001/api/render-progress/${sessionId}`;
+    try {
+      this.eventSource = new EventSource(progressUrl);
+      this.eventSource.onopen = () => {
+        console.log('✅ CONEXÃO DE PROGRESSO REAL ESTABELECIDA');
+      };
+      this.eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log(`🔥 PROGRESSO REAL RECEBIDO:`, data);
+          if (data.type === 'connected') {
+            console.log('📡 Conectado ao servidor de progresso');
+          } else if (data.type === 'progress' || data.type === 'frame') {
+            this.renderProgress.current = data.renderedFrames;
+            this.renderProgress.total = data.totalFrames;
+            // Só avança para o último step quando frames começarem a ser renderizados
+            if (data.renderedFrames > 0 && this.currentStep < this.progressSteps.length - 1) {
+              for (let i = 0; i < this.progressSteps.length - 1; i++) {
+                this.progressSteps[i].completed = true;
+              }
+              this.currentStep = this.progressSteps.length - 1;
+            }
+            // Nunca marcar o último step como completed aqui!
+            if (this.progressSection) {
+              this.progressSection.style.display = 'block';
+            }
+            this.animateProgress();
+            // Atualiza o contador externo
+            setTimeout(() => {
+              const frameCounterDiv = document.getElementById('external-frame-counter');
+              if (frameCounterDiv) {
+                frameCounterDiv.textContent = `Frames: ${this.renderProgress.current}/${this.renderProgress.total}`;
+                frameCounterDiv.style.display = 'block';
+              }
+            }, 0);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao processar progresso:', error);
+        }
+      };
+      this.eventSource.onerror = (error) => {
+        console.error('❌ Erro na conexão de progresso:', error);
+        this.eventSource.close();
+      };
+    } catch (error) {
+      console.error('❌ Falha ao conectar progresso real:', error);
+      this.startFallbackSimulation();
+    }
+  }
+  
+  // Fallback apenas se conexão real falhar
+  startFallbackSimulation() {
+    console.log('⚠️ Usando fallback de simulação');
     this.renderProgress.current = 0;
     
-    // Calcular timing baseado em duração real (3s de vídeo)
-    const videoDurationMs = 3000; // 3 segundos
-    const updateIntervalMs = 100; // Atualizar a cada 100ms
-    const totalUpdates = Math.floor(videoDurationMs / updateIntervalMs);
-    const framesPerUpdate = Math.ceil(this.renderProgress.total / totalUpdates);
-    
-    console.log(`🎬 Iniciando simulação de ${this.renderProgress.total} frames em ${videoDurationMs}ms`);
-    
     this.frameProgressInterval = setInterval(() => {
-      // Incremento baseado em tempo real ao invés de aleatório
-      const increment = Math.min(
-        framesPerUpdate + Math.floor(Math.random() * 2), // Pequena variação natural
-        this.renderProgress.total - this.renderProgress.current
-      );
-      
       this.renderProgress.current = Math.min(
-        this.renderProgress.current + increment,
-        this.renderProgress.total // Pode completar até 100%
+        this.renderProgress.current + Math.floor(Math.random() * 3) + 1,
+        this.renderProgress.total
       );
       
-      console.log(`📸 Progresso de frames: ${this.renderProgress.current}/${this.renderProgress.total}`);
-      
-      // Update the progress display
       this.animateProgress();
       
-      // Parar quando completar ou após tempo máximo
+      // Não tenta atualizar contador de frames nos steps
       if (this.renderProgress.current >= this.renderProgress.total) {
         clearInterval(this.frameProgressInterval);
-        console.log('✅ Simulação de frames completada');
+        this.frameProgressInterval = null;
       }
-    }, updateIntervalMs);
-    
-    // Timeout de segurança para evitar travamento
-    setTimeout(() => {
-      if (this.frameProgressInterval) {
-        console.log('⚠️ Timeout de segurança - forçando conclusão');
-        clearInterval(this.frameProgressInterval);
-        this.renderProgress.current = this.renderProgress.total;
-        this.animateProgress();
-      }
-    }, videoDurationMs + 2000); // 2s de margem
+    }, 200);
+  }
+  
+  // Remover completamente a função updateFrameProgressIndicator
+
+  // REMOVER FUNÇÃO ANTIGA
+  startFrameProgressSimulation() {
+    // 🔥 AGORA USA PROGRESSO REAL - esta função não é mais chamada
+    console.log('⚠️ startFrameProgressSimulation() foi substituída por connectToRealProgress()');
   }
 
   markFinalStepCompleted() {
-    console.log('🏁 markFinalStepCompleted chamado!');
-    // Stop frame simulation if still running
+    console.log('✅ VÍDEO FINALIZADO - FECHANDO CONEXÃO DE PROGRESSO');
+    // Marcar o último step como completed
+    this.progressSteps[this.progressSteps.length - 1].completed = true;
+    this.animateProgress();
+    // Fechar conexão de progresso real
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+    
+    // Stop fallback simulation if running
     if (this.frameProgressInterval) {
       clearInterval(this.frameProgressInterval);
       this.frameProgressInterval = null;
@@ -509,11 +456,6 @@ class RemotionCardCreator {
     // Set to complete frame count
     this.renderProgress.current = this.renderProgress.total;
     console.log('✅ Etapa final marcada como completa - frames finalizados');
-    
-    // Mark the final step (Gravando vídeo) as completed
-    this.progressSteps[this.progressSteps.length - 1].completed = true;
-    console.log(`✅ progressSteps[${this.progressSteps.length - 1}].completed = true (markFinalStepCompleted)`);
-    this.animateProgress();
   }
 
   hideProgress() {
@@ -540,7 +482,11 @@ class RemotionCardCreator {
   }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  window.remotionCreator = new RemotionCardCreator();
-});
+// === INÍCIO: Contador externo de frames baseado nos logs do console ===
+// Remover interceptação de console.log para contador externo
+// === FIM: Contador externo de frames ===
+
+// Initialize when DOM is ready - DISABLED to prevent conflicts with CardCreatorInterface
+// document.addEventListener('DOMContentLoaded', () => {
+//   window.remotionCreator = new RemotionCardCreator();
+// });

@@ -265,3 +265,6 @@ class ShapeBlur {
 }
 
 export default ShapeBlur;
+
+// Tornar disponível globalmente
+window.ShapeBlur = ShapeBlur;

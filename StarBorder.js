@@ -59,3 +59,6 @@ class StarBorder {
 }
 
 export default StarBorder;
+
+// Tornar disponível globalmente
+window.StarBorder = StarBorder;

@@ -671,3 +671,6 @@ class MagicBento {
 }
 
 export default MagicBento;
+
+// Tornar disponível globalmente
+window.MagicBento = MagicBento;
