@@ -46,10 +46,9 @@ class CardCreatorInterface {
     this.elements.removeBgCheck = document.getElementById('removeBgCheck');
     this.elements.generateBtn = document.getElementById('remotion-generate-btn');
     
-    // Progress section
-    this.elements.progressSection = document.getElementById('remotion-progress-section');
-    this.elements.progressFill = document.getElementById('progressFill');
-    this.elements.progressSteps = document.querySelectorAll('.step');
+    // Progress section (NEW SIMPLIFIED)
+    this.elements.progressSection = document.getElementById('card-creation-progress');
+    this.elements.frameCounter = document.getElementById('frame-counter');
     
     // Result section
     this.elements.resultSection = document.getElementById('remotion-result-section');
@@ -270,33 +269,26 @@ class CardCreatorInterface {
       const userName = this.elements.userNameInput.value.trim();
       const shouldRemoveBg = this.elements.removeBgCheck?.checked !== false;
 
-      // Mostrar seção de progresso
+      // Mostrar seção de progresso simplificada
       this.showProgressSection();
+      this.updateFrameCounter(0, 300);
       
-      // Passo 1: Processar foto
-      this.updateProgress(1, 10, 'Processando foto...');
-      await this.delay(300);
-
-      // Passo 2: Remover fundo
-      this.updateProgress(2, 25, 'Removendo fundo...');
-      
+      // Processar foto e remover fundo
       if (shouldRemoveBg) {
         this.processedImage = await this.backgroundRemover.removeBackground(
           this.selectedFile,
           (progress, message) => {
-            this.updateProgress(2, 25 + (progress * 0.3), message);
+            // Simular frames iniciais durante processamento
+            const fakeFrames = Math.floor(progress * 30);
+            this.updateFrameCounter(fakeFrames, 300);
           }
         );
       } else {
         this.processedImage = this.selectedFile;
       }
 
-      // Passo 3: Criar ProfileCard real (igual aos artistas)
-      this.updateProgress(3, 60, 'Criando ProfileCard...');
-      
+      // Criar ProfileCard
       const imageUrl = URL.createObjectURL(this.processedImage);
-      
-      // Criar ProfileCard IGUAL ao dos artistas
       this.userCard = new ProfileCard({
         avatarUrl: imageUrl,
         miniAvatarUrl: imageUrl,
@@ -311,9 +303,11 @@ class CardCreatorInterface {
         onContactClick: null
       });
 
-      // Passo 4: Finalizar e mostrar preview
-      this.updateProgress(4, 100, 'Card criado! Preparando preview...');
-      await this.delay(500);
+      // Simular progresso final até 300
+      for (let i = 30; i <= 300; i += 10) {
+        await this.delay(100);
+        this.updateFrameCounter(i, 300);
+      }
 
       // Mostrar preview do card criado
       this.showCardPreview();
@@ -531,8 +525,10 @@ class CardCreatorInterface {
         
         const progress = currentFrame / totalFrames;
         
-        // Manter contagem de frames sempre visível
-        this.elements.downloadBtn.textContent = `🎬 Frames ${currentFrame + 1}/${totalFrames}`;
+        // Atualizar contador de frames na nova interface
+        this.updateFrameCounter(currentFrame + 1, totalFrames);
+        this.elements.downloadBtn.textContent = currentFrame + 1 === totalFrames ? 
+          '📹 Gravando vídeo...' : `🎬 Renderizando...`;
         console.log(`📸 Renderizando frame ${currentFrame + 1}/${totalFrames} (${Math.round(progress * 100)}%)`);
         
         // Simular movimento do mouse no card
@@ -703,12 +699,12 @@ class CardCreatorInterface {
   }
 
   /**
-   * Mostra seção de progresso
+   * Mostra seção de progresso simplificada
    */
   showProgressSection() {
     if (this.elements.progressSection) {
-      this.elements.progressSection.hidden = false;
-      this.elements.resultSection.hidden = true;
+      this.elements.progressSection.style.display = 'block';
+      this.elements.resultSection.style.display = 'none';
     }
 
     // Scroll para seção de progresso
@@ -723,39 +719,28 @@ class CardCreatorInterface {
    */
   hideProgressSection() {
     if (this.elements.progressSection) {
-      this.elements.progressSection.hidden = true;
+      this.elements.progressSection.style.display = 'none';
     }
   }
 
   /**
-   * Atualiza progresso visual
+   * Atualiza contador de frames com animação
    */
-  updateProgress(step, percentage, message) {
-    // Atualizar barra de progresso
-    if (this.elements.progressFill) {
-      this.elements.progressFill.style.width = `${percentage}%`;
-    }
-
-    // Atualizar steps
-    this.elements.progressSteps.forEach((stepEl, index) => {
-      const stepNumber = index + 1;
+  updateFrameCounter(current, total) {
+    if (this.elements.frameCounter) {
+      // Adicionar classe de animação
+      this.elements.frameCounter.classList.add('updating');
       
-      if (stepNumber < step) {
-        stepEl.classList.add('completed');
-        stepEl.classList.remove('active');
-      } else if (stepNumber === step) {
-        stepEl.classList.add('active');
-        stepEl.classList.remove('completed');
-        
-        // Atualizar texto do step ativo
-        const stepText = stepEl.querySelector('.step-text');
-        if (stepText && message) {
-          stepText.textContent = message;
-        }
-      } else {
-        stepEl.classList.remove('active', 'completed');
-      }
-    });
+      // Atualizar texto
+      this.elements.frameCounter.textContent = `${current}/${total}`;
+      
+      // Remover classe após animação
+      setTimeout(() => {
+        this.elements.frameCounter.classList.remove('updating');
+      }, 300);
+      
+      console.log(`📊 Frame counter updated: ${current}/${total}`);
+    }
   }
 
   /**
@@ -817,13 +802,8 @@ class CardCreatorInterface {
     this.hideProgressSection();
     this.elements.resultSection.hidden = true;
 
-    // Resetar progresso
-    if (this.elements.progressFill) {
-      this.elements.progressFill.style.width = '0%';
-    }
-    this.elements.progressSteps.forEach(step => {
-      step.classList.remove('active', 'completed');
-    });
+    // Resetar contador de frames
+    this.updateFrameCounter(0, 300);
 
     this.validateForm();
 
