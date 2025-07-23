@@ -372,13 +372,14 @@
 }
 
 .remotion-download-btn {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
+  background: linear-gradient(135deg, #c08229 0%, #d4942a 100%) !important;
   color: white;
 }
 
 .remotion-download-btn:hover {
+  background: linear-gradient(135deg, #d4942a 0%, #e6a82c 100%) !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+  box-shadow: 0 6px 20px rgba(192, 130, 41, 0.4);
 }
 
 .remotion-new-card-btn {

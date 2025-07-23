@@ -52,6 +52,7 @@ class CardCreatorInterface {
     
     // Result section
     this.elements.resultSection = document.getElementById('remotion-result-section');
+    this.elements.resultActions = document.getElementById('remotion-result-actions');
     this.elements.previewVideo = document.getElementById('remotion-video-preview');
     this.elements.downloadBtn = document.getElementById('remotion-download-btn');
     this.elements.createNewBtn = document.getElementById('remotion-new-card-btn');
@@ -170,12 +171,12 @@ class CardCreatorInterface {
     try {
       // Validar arquivo
       if (!file.type.startsWith('image/')) {
-        this.showNotification('Por favor, selecione uma imagem válida', 'error');
+        console.error('Por favor, selecione uma imagem válida');
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        this.showNotification('Imagem muito grande. Máximo 10MB', 'error');
+        console.error('Imagem muito grande. Máximo 10MB');
         return;
       }
 
@@ -185,7 +186,6 @@ class CardCreatorInterface {
 
     } catch (error) {
       console.error('Erro ao processar arquivo:', error);
-      this.showNotification('Erro ao processar arquivo', 'error');
     }
   }
 
@@ -253,7 +253,7 @@ class CardCreatorInterface {
    */
   async generateCard() {
     if (!this.selectedFile || !this.elements.userNameInput?.value.trim()) {
-      this.showNotification('Preencha todos os campos obrigatórios', 'error');
+      console.error('Preencha todos os campos obrigatórios');
       return;
     }
 
@@ -319,11 +319,11 @@ class CardCreatorInterface {
       // Mostrar resultado final
       this.showServerVideoResult();
       
-      this.showNotification('Card criado com sucesso! 🎉', 'success');
+      console.log('Card criado com sucesso! 🎉');
 
     } catch (error) {
       console.error('Erro ao gerar card:', error);
-      this.showNotification(`Erro: ${error.message}`, 'error');
+      console.error(`Erro: ${error.message}`);
       this.hideProgressSection();
       this.closeProgressConnection();
     } finally {
@@ -404,7 +404,7 @@ class CardCreatorInterface {
   downloadVideo() {
     if (!this.generatedVideo) {
       console.error('❌ Tentativa de download sem vídeo gerado');
-      this.showNotification('Nenhum vídeo foi gerado ainda.', 'error');
+      console.error('Nenhum vídeo foi gerado ainda.');
       return;
     }
 
@@ -456,18 +456,18 @@ class CardCreatorInterface {
         console.log('🧹 URL do blob limpa');
       }, 5000);
       
-      this.showNotification(`Download iniciado: ${fileName} 🎉`, 'success');
+      console.log(`Download iniciado: ${fileName} 🎉`);
       
     } catch (error) {
       console.error('❌ Erro no download:', error);
-      this.showNotification(`Erro ao fazer download: ${error.message}`, 'error');
+      console.error(`Erro ao fazer download: ${error.message}`);
       
       // Fallback: tentar abrir em nova aba
       try {
         const url = URL.createObjectURL(this.generatedVideo);
         const newWindow = window.open(url, '_blank');
         if (newWindow) {
-          this.showNotification('Vídeo aberto em nova aba. Clique com botão direito para salvar.', 'info');
+          console.log('Vídeo aberto em nova aba. Clique com botão direito para salvar.');
         } else {
           throw new Error('Popup bloqueado');
         }
@@ -490,6 +490,7 @@ class CardCreatorInterface {
     if (this.elements.progressSection) {
       this.elements.progressSection.style.display = 'flex';
       this.elements.resultSection.style.display = 'none';
+      this.elements.resultActions.style.display = 'none';
     }
 
     // Scroll para seção de progresso
@@ -500,18 +501,13 @@ class CardCreatorInterface {
   }
 
   /**
-   * Esconde seção de progresso e restaura formulário
+   * Esconde seção de progresso (SEM restaurar formulário automaticamente)
    */
   hideProgressSection() {
     if (this.elements.progressSection) {
       this.elements.progressSection.style.display = 'none';
     }
-    
-    // Mostrar formulário novamente
-    const formContent = document.querySelector('.remotion-form-content');
-    if (formContent) {
-      formContent.style.display = 'block';
-    }
+    // NÃO mostrar formulário automaticamente - será controlado manualmente
   }
 
   /**
@@ -600,9 +596,16 @@ class CardCreatorInterface {
     // Fechar conexão de progresso
     this.closeProgressConnection();
     
+    // ESCONDER COMPLETAMENTE O FORMULÁRIO DE UPLOAD
+    const formContent = document.querySelector('.remotion-form-content');
+    if (formContent) {
+      formContent.style.display = 'none';
+    }
+    
     // Esconder progresso e mostrar resultado
     this.hideProgressSection();
     this.elements.resultSection.style.display = 'block';
+    this.elements.resultActions.style.display = 'flex';
 
     // Criar URL do vídeo
     const videoUrl = URL.createObjectURL(this.generatedVideo);
@@ -645,11 +648,14 @@ class CardCreatorInterface {
 
 
   /**
-   * Reseta interface para criar novo card
+   * Reseta interface para criar novo card - volta ao estado inicial
    */
   resetInterface() {
     // Fechar conexão de progresso se necessário
     this.closeProgressConnection();
+    
+    // Reset generating state
+    this.isGenerating = false;
     
     // Limpar dados
     this.selectedFile = null;
@@ -679,7 +685,14 @@ class CardCreatorInterface {
 
     // Esconder seções
     this.hideProgressSection();
-    this.elements.resultSection.hidden = true;
+    this.elements.resultSection.style.display = 'none';
+    this.elements.resultActions.style.display = 'none';
+
+    // Show form content
+    const formContent = document.querySelector('.remotion-form-content');
+    if (formContent) {
+      formContent.style.display = 'block';
+    }
 
     // Resetar contador de frames
     this.updateFrameCounter(0, 300);
@@ -692,55 +705,9 @@ class CardCreatorInterface {
       block: 'start'
     });
 
-    this.showNotification('Interface resetada', 'info');
+    console.log('✅ Interface resetada para estado inicial');
   }
 
-  /**
-   * Mostra notificação
-   */
-  showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    
-    const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
-    
-    notification.innerHTML = `
-      <div class="notification-content">
-        <span class="notification-icon">${icon}</span>
-        <span class="notification-text">${message}</span>
-        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
-      </div>
-    `;
-    
-    // Estilos da notificação
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: ${type === 'error' ? '#ff4757' : type === 'success' ? '#2ed573' : '#5352ed'};
-      color: white;
-      padding: 16px 20px;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      z-index: 10000;
-      animation: slideIn 0.3s ease;
-      max-width: 400px;
-      font-size: 14px;
-      font-weight: 500;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto remover após 5 segundos
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => {
-          notification.remove();
-        }, 300);
-      }
-    }, 5000);
-  }
 
   /**
    * Aguarda tempo especificado
@@ -779,56 +746,6 @@ class CardCreatorInterface {
   }
 }
 
-// Adicionar estilos para notificações
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-  
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-  }
-  
-  .notification-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .notification-icon {
-    font-size: 16px;
-    flex-shrink: 0;
-  }
-  
-  .notification-text {
-    flex: 1;
-    line-height: 1.4;
-  }
-  
-  .notification-close {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background 0.2s ease;
-  }
-  
-  .notification-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-`;
-document.head.appendChild(notificationStyles);
 
 // Inicializar quando DOM estiver pronto
 let cardCreatorInterface;

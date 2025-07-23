@@ -906,8 +906,8 @@ html {
 .progress-layout {
     display: flex;
     align-items: center;
-    gap: 40px;
-    max-width: 800px;
+    justify-content: space-between;
+    max-width: 900px;
     width: 100%;
 }
 
@@ -928,6 +928,7 @@ html {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     flex-shrink: 0;
+    margin: 0 60px;
 }
 
 @keyframes spin {
@@ -936,12 +937,12 @@ html {
 }
 
 .frame-counter {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     font-weight: 600;
     color: #c08229;
     font-family: 'Orbitron', monospace;
     flex-shrink: 0;
-    min-width: 80px;
+    min-width: 120px;
     text-align: right;
 }
 
@@ -1027,4 +1028,27 @@ html {
     background: #555;
     cursor: not-allowed;
     box-shadow: none;
+}
+
+/* ===== RESULT ACTIONS (SEPARATE SECTION) ===== */
+.remotion-result-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.remotion-result-section {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.remotion-video-preview {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }

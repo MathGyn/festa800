@@ -167,7 +167,6 @@
     <section id="card-creator" class="remotion-card-creator">
         <div class="remotion-creator-header">
             <h2>Crie Seu Card Time Traveler</h2>
-            <p>Transforme sua foto em um card holográfico com animações profissionais</p>
         </div>
 
         <div class="remotion-form-content">
@@ -206,22 +205,21 @@
             </div>
         </div>
 
-        <!-- Result Section -->
+        <!-- Result Section (Video Only) -->
         <div class="remotion-result-section" id="remotion-result-section" style="display: none;">
             <video id="remotion-video-preview" class="remotion-video-preview" controls muted loop>
                 Seu navegador não suporta vídeos HTML5.
             </video>
-            <div class="remotion-result-actions">
-                <a id="remotion-download-btn" class="remotion-download-btn" download>
-                    Baixar vídeo para Instagram
-                </a>
-                <button id="remotion-new-card-btn" class="remotion-new-card-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 4v16m8-8H4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Criar Novo Card
-                </button>
-            </div>
+        </div>
+
+        <!-- Result Actions (Separate) -->
+        <div class="remotion-result-actions" id="remotion-result-actions" style="display: none;">
+            <a id="remotion-download-btn" class="remotion-download-btn" download>
+                Baixar vídeo para Instagram
+            </a>
+            <button id="remotion-new-card-btn" class="remotion-new-card-btn">
+                Criar Novo Card
+            </button>
         </div>
 
         <!-- Hidden File Input -->
