@@ -92,44 +92,54 @@ async function initializeBundle() {
   return bundleLocation;
 }
 
-// Function to remove background from image using PhotoRoom API
+// Function to remove background from image using rembg
 async function removeBackground(imagePath) {
   try {
-    console.log('🖼️ Removing background from image using PhotoRoom...');
+    console.log('🖼️ Removing background from image using rembg...');
     
-    const API_KEY = 'sk_pr_default_928d4f9b69a687e3aa884bc3468f9d08310b4f93'; // PhotoRoom API key
-    const processedImagePath = imagePath.replace(/(\.[^.]+)$/, '-nobg$1');
+    const processedImagePath = imagePath.replace(/(\.[^.]+)$/, '-nobg.png');
     
-    // Read the image file
-    const imageBuffer = fs.readFileSync(imagePath);
+    // Use Python virtual environment and rembg
+    const venvPython = path.join(__dirname, '..', 'venv', 'bin', 'python3');
+    const removeScript = path.join(__dirname, 'remove_bg.py');
     
-    // Call PhotoRoom API using form data
-    const FormData = (await import('form-data')).default;
-    const formData = new FormData();
-    formData.append('image_file', imageBuffer, {
-      filename: 'image.jpg',
-      contentType: 'image/jpeg'
+    // Execute rembg Python script
+    const { spawn } = await import('child_process');
+    
+    return new Promise((resolve, reject) => {
+      const process = spawn(venvPython, [removeScript, imagePath, processedImagePath]);
+      
+      let stdout = '';
+      let stderr = '';
+      
+      process.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+      
+      process.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+      
+      process.on('close', (code) => {
+        if (code === 0) {
+          console.log('✅ Background removal completed using rembg');
+          console.log(stdout.trim());
+          resolve(processedImagePath);
+        } else {
+          console.error('❌ Background removal failed:', stderr);
+          console.log('🔄 Using original image as fallback');
+          resolve(imagePath);
+        }
+      });
+      
+      process.on('error', (error) => {
+        console.error('❌ Error executing rembg:', error.message);
+        console.log('🔄 Using original image as fallback');
+        resolve(imagePath);
+      });
     });
-
-    const response = await axios.post('https://sdk.photoroom.com/v1/segment', formData, {
-      headers: {
-        'x-api-key': API_KEY,
-        ...formData.getHeaders(),
-      },
-      responseType: 'arraybuffer',
-      maxContentLength: 50 * 1024 * 1024, // 50MB
-    });
-    
-    // Save the processed image
-    fs.writeFileSync(processedImagePath, response.data);
-    
-    console.log('✅ Background removal completed using PhotoRoom API');
-    return processedImagePath;
   } catch (error) {
     console.error('❌ Background removal failed:', error.message);
-    console.error('Error details:', error.response?.status, error.response?.statusText);
-    
-    // Fallback: return original image if API fails
     console.log('🔄 Using original image as fallback');
     return imagePath;
   }
